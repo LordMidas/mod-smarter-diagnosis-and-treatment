@@ -1,0 +1,5 @@
+ModLMMSmarterDiagnosis/bin/*
+ModLMMSmarterDiagnosis/obj/
+.vscode/
+*.dll
+*.pdb
