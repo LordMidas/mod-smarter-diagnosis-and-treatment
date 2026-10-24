@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+  <GameDBStringTable ID="MOD_SMARTER_DIAGNOSIS_AND_TREATMENT_HU">
+    <LanguageCode>hu</LanguageCode>
+    <LanguageNameLocalized>Magyar</LanguageNameLocalized>
+    <LocalizedStrings>
+      <GameDBLocalizedString>
+        <LocID>MOD_SMARTER_DIAGNOSIS_AND_TREATMENT</LocID>
+        <Text>Smarter Diagnosis and Treatment</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_RELEVANT_DIAGNOSES</LocID>
+        <Text>Releváns diagnózisok:</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_RELEVANT_EXAMINATIONS</LocID>
+        <Text>Releváns vizsgálatok:</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_HEADER</LocID>
+        <Text>Kezelés</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_DIAGNOSIS</LocID>
+        <Text>Csak diagnózis</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_HIGH</LocID>
+        <Text>Magas kockázat</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_MEDIUM</LocID>
+        <Text>Közepes kockázat</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_LOW</LocID>
+        <Text>Alacsony kockázat</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_DIAGNOSIS</LocID>
+        <Text>Az MI-orvosok csak a diagnózishoz felsorolt kezeléseket írják fel (vanilla). Az összeesési kockázatú tüneteket mindig elsőként kezelik.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_LOW</LocID>
+        <Text>Az MI-orvosok a diagnózisban nem szereplő, látható alacsony kockázatú vagy annál magasabb kockázatú tünetekre is felírnak kezeléseket. Az összeesési kockázatú tüneteket mindig elsőként kezelik.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_MEDIUM</LocID>
+        <Text>Az MI-orvosok a diagnózisban nem szereplő, látható közepes kockázatú vagy annál magasabb kockázatú tünetekre is felírnak kezeléseket. Az összeesési kockázatú tüneteket mindig elsőként kezelik.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_HIGH</LocID>
+        <Text>Az MI-orvosok a diagnózisban nem szereplő, látható magas kockázatú tünetekre is felírnak kezeléseket. Az összeesési kockázatú tüneteket mindig elsőként kezelik.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NOT_DIAGNOSED</LocID>
+        <Text>A beteget diagnosztizálni kell, mielőtt elhagyhatja az intenzív osztályt.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_HIGH_HAZARD</LocID>
+        <Text>A betegnek még van magas kockázatú tünete, vagy kezeletlen magas kockázatú diagnózisa.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_COLLAPSE_PENDING</LocID>
+        <Text>A beteg mindjárt összeesik.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_ONLY_CARE</LocID>
+        <Text>A betegnek még szüksége van egy olyan kezelésre, amely csak az intenzív osztályon érhető el.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_HIDDEN_RISK</LocID>
+        <Text>A megvizsgálatlan tünetek még veszélyesek lehetnek. Előbb fejezd be a vizsgálatokat.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_MIN_STAY</LocID>
+        <Text>A betegnek még körülbelül {0} órát az intenzív osztályon kell maradnia.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_STEP_DOWN_READY</LocID>
+        <Text>A beteg stabil. Válassz osztályt, hogy átvidd annak félintenzív részlegére.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_INVALID_DEPARTMENT</LocID>
+        <Text>A betegeket nem lehet erre az osztályra áthelyezni.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NO_HOSPITALIZATION</LocID>
+        <Text>Ennek az osztálynak nincs működő fekvőbeteg-ellátása.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NO_FREE_BED</LocID>
+        <Text>Nincs szabad ágy azon az osztályon.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NO_TRANSPORT</LocID>
+        <Text>Nincs elérhető betegszállítás.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_MOVED_HDU</LocID>
+        <Text>Áthelyezve félintenzívre: {0}</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_MOVED_WARD</LocID>
+        <Text>Áthelyezve kórterembe: {0}</Text>
+      </GameDBLocalizedString>
+    </LocalizedStrings>
+  </GameDBStringTable>
+</Database>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+  <GameDBStringTable ID="MOD_SMARTER_DIAGNOSIS_AND_TREATMENT_ES">
+    <LanguageCode>es</LanguageCode>
+    <LanguageNameLocalized>Español</LanguageNameLocalized>
+    <LocalizedStrings>
+      <GameDBLocalizedString>
+        <LocID>MOD_SMARTER_DIAGNOSIS_AND_TREATMENT</LocID>
+        <Text>Smarter Diagnosis and Treatment</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_RELEVANT_DIAGNOSES</LocID>
+        <Text>Diagnósticos relevantes:</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_RELEVANT_EXAMINATIONS</LocID>
+        <Text>Pruebas relevantes:</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_HEADER</LocID>
+        <Text>Tratamiento</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_DIAGNOSIS</LocID>
+        <Text>Solo diagnóstico</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_HIGH</LocID>
+        <Text>Riesgo alto</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_MEDIUM</LocID>
+        <Text>Riesgo medio</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_LOW</LocID>
+        <Text>Riesgo bajo</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_DIAGNOSIS</LocID>
+        <Text>Los médicos IA solo prescriben los tratamientos indicados para el diagnóstico (vanilla). Los síntomas con riesgo de colapso siempre se tratan primero.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_LOW</LocID>
+        <Text>Los médicos IA también prescriben tratamientos para los síntomas visibles de riesgo bajo o superior, aunque el diagnóstico no los incluya. Los síntomas con riesgo de colapso siempre se tratan primero.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_MEDIUM</LocID>
+        <Text>Los médicos IA también prescriben tratamientos para los síntomas visibles de riesgo medio o superior, aunque el diagnóstico no los incluya. Los síntomas con riesgo de colapso siempre se tratan primero.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_HIGH</LocID>
+        <Text>Los médicos IA también prescriben tratamientos para los síntomas visibles de riesgo alto, aunque el diagnóstico no los incluya. Los síntomas con riesgo de colapso siempre se tratan primero.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NOT_DIAGNOSED</LocID>
+        <Text>El paciente debe estar diagnosticado antes de salir de la UCI.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_HIGH_HAZARD</LocID>
+        <Text>El paciente aún presenta un síntoma de riesgo alto o tiene un diagnóstico de riesgo alto sin tratar.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_COLLAPSE_PENDING</LocID>
+        <Text>El paciente está a punto de colapsar.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_ONLY_CARE</LocID>
+        <Text>El paciente aún necesita un tratamiento que solo está disponible en la UCI.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_HIDDEN_RISK</LocID>
+        <Text>Los síntomas sin examinar aún podrían ser peligrosos. Termina primero los exámenes.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_MIN_STAY</LocID>
+        <Text>El paciente debe permanecer en la UCI unas {0} hora(s) más.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_STEP_DOWN_READY</LocID>
+        <Text>El paciente está estable. Elige un departamento para trasladarlo a su unidad de cuidados intermedios.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_INVALID_DEPARTMENT</LocID>
+        <Text>No se puede trasladar pacientes a este departamento.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NO_HOSPITALIZATION</LocID>
+        <Text>Este departamento no tiene hospitalización operativa.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NO_FREE_BED</LocID>
+        <Text>No hay camas libres en ese departamento.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NO_TRANSPORT</LocID>
+        <Text>No hay transporte de pacientes disponible.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_MOVED_HDU</LocID>
+        <Text>Trasladado a cuidados intermedios: {0}</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_MOVED_WARD</LocID>
+        <Text>Trasladado a planta: {0}</Text>
+      </GameDBLocalizedString>
+    </LocalizedStrings>
+  </GameDBStringTable>
+</Database>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Smarter Diagnosis and Treatment settings. Changes apply on the next game launch. -->
+<!-- A mod update may replace this file, so keep a copy of your edits. Delete the file to regenerate the defaults. -->
+<SmarterDiagnosisAndTreatmentConfig Version="1">
+  <General>
+    <!-- Writes the loaded settings that differ from the defaults, and every feature switched off here, to the game log (Player.log). Default: false. -->
+    <EnableDiagnostics>false</EnableDiagnostics>
+  </General>
+  <DiagnosisScoring>
+    <!-- Uses this mod's likelihood-based diagnosis percentages instead of the vanilla ones. When off, the doctor panel and NPC doctors use vanilla percentages. Default: true. -->
+    <Enabled>true</Enabled>
+    <!-- How strongly a negative exam result (a symptom tested and not found) lowers a diagnosis's likelihood. 0 ignores negative results, 1 counts them as fully as positive ones. Range: 0-1. Default: 0.2. -->
+    <NegativeEvidenceWeight>0.2</NegativeEvidenceWeight>
+    <!-- Caps how much a negative result counts for a symptom that may only appear later in the illness, since it can still show up after the exam. Lower values trust those negative results less. Only matters for mods that add late-appearing symptoms; vanilla and DLC diagnoses have none. Range: 0-0.99. Default: 0.95. -->
+    <MaxDelayedAbsentProbability>0.95</MaxDelayedAbsentProbability>
+  </DiagnosisScoring>
+  <NpcDiagnosis>
+    <!-- Vanilla lets NPC doctors diagnose early, below the department's certainty level, whenever the leading diagnosis is 1.5 times as likely as the next one. This adds the checks below, so early diagnoses need real evidence. When off, the vanilla rule applies. Default: true. -->
+    <EarlyDiagnosisEnabled>true</EarlyDiagnosisEnabled>
+    <!-- Smallest percentage the leading diagnosis must have for an NPC doctor to diagnose early (or the department's certainty level, if that is higher). Higher values make early diagnoses rarer and safer. Range: 0-100. Default: 66. -->
+    <MinimumRelativeShare>66</MinimumRelativeShare>
+    <!-- How many times more likely the leading diagnosis must be than the second one for an NPC doctor to diagnose early. 1.5 means 50% more likely. Range: 1-10. Default: 1.5. -->
+    <MinimumTopRunnerUpRatio>1.5</MinimumTopRunnerUpRatio>
+    <!-- How many of the leading diagnosis's symptoms the doctor must have seen before diagnosing early. A main symptom of the diagnosis counts as enough on its own. Range: 1-10. Default: 2. -->
+    <MinimumVisibleSymptoms>2</MinimumVisibleSymptoms>
+  </NpcDiagnosis>
+  <ExaminationList>
+    <!-- Hides examinations that cannot reveal anything new about the possible diagnoses from the available examinations list. When off, the vanilla list is shown. Default: true. -->
+    <FilterEnabled>true</FilterEnabled>
+    <!-- Sorts the available examinations list by how useful each exam is, most useful first. When off, the list keeps its vanilla order. Default: true. -->
+    <SortEnabled>true</SortEnabled>
+    <!-- The Differential Diagnosis exam only counts as useful while fewer than this many diagnoses are still possible. With more candidates NPC doctors do not pick it and it sorts to the bottom of the list. Range: 2-20. Default: 6. -->
+    <DifferentialDiagnosisMaxDiagnoses>6</DifferentialDiagnosisMaxDiagnoses>
+    <!-- How much more useful the Differential Diagnosis exam looks for every possible diagnosis fewer than the limit above. Higher values push it up the list sooner as candidates are ruled out. Range: 0-100. Default: 16.67. -->
+    <DifferentialDiagnosisScorePerStep>16.67</DifferentialDiagnosisScorePerStep>
+  </ExaminationList>
+  <NpcExamChoice>
+    <!-- Makes NPC doctors choose examinations by usefulness, doctor skill and exam priority. When off, they choose as in vanilla. Default: true. -->
+    <Enabled>true</Enabled>
+    <!-- How much more NPC doctors favor exams they can do themselves in the office over lab tests and referrals. 1 means no preference. Range: 1-5. Default: 1.25. -->
+    <OfficeExamMultiplier>1.25</OfficeExamMultiplier>
+    <!-- Extra preference for the Differential Diagnosis exam, scaled by the doctor's advanced diagnosis skill. 0.25 makes a top specialist 25% more likely to pick it. Range: 0-2. Default: 0.25. -->
+    <DifferentialDiagnosisSpecialistBonus>0.25</DifferentialDiagnosisSpecialistBonus>
+    <!-- How strongly an exam's priority value steers NPC doctors towards it. 0 ignores priority, higher values make high-priority exams much more likely. Range: 0-5. Default: 1. -->
+    <PriorityMultiplierStrength>1</PriorityMultiplierStrength>
+    <!-- In the Emergency department, vanilla sends a patient to observation as soon as the doctor picks an exam with priority 30 or lower. With this on, NPC doctors skip those exams while a higher-priority useful exam is available, so patients are not sent to observation too early. Default: true. -->
+    <DeferLowPriorityExamsInEr>true</DeferLowPriorityExamsInEr>
+  </NpcExamChoice>
+  <CriticalTreatment>
+    <!-- Clinic patients with a symptom that risks a collapse get that symptom's treatment before any exam or transfer. Default: true. -->
+    <ClinicEnabled>true</ClinicEnabled>
+    <!-- How many in-game hours a clinic patient with a collapse risk waits for their treatment to become possible (for example while a room or staff member is busy) before the normal routine continues without it. Range: 0-12. Default: 1. -->
+    <ClinicBlockedWaitHours>1</ClinicBlockedWaitHours>
+    <!-- Hospitalized patients with a collapse risk have their critical treatments scheduled ahead of a queued surgery. Default: true. -->
+    <HospitalEnabled>true</HospitalEnabled>
+    <!-- How many in-game hours a queued surgery is held back so a critical treatment can go first. After this wait the surgery is no longer delayed. Range: 0-12. Default: 2. -->
+    <SurgeryHoldHours>2</SurgeryHoldHours>
+    <!-- While a patient is on the operating table, the surgical team handles a pending collapse and treats collapse-risk symptoms right away, instead of waiting until the patient is back in bed. Default: true. -->
+    <InSurgeryEnabled>true</InSurgeryEnabled>
+  </CriticalTreatment>
+  <ErObservation>
+    <!-- When the ER doctor diagnoses a condition that belongs to another department that is available, the patient goes there directly instead of being forced into ER observation first. Default: true. -->
+    <SkipForOtherDepartment>true</SkipForOtherDepartment>
+  </ErObservation>
+  <TreatmentThreshold>
+    <!-- Adds a Treatment setting to each department's management window. Doctors then also plan a treatment for every untreated symptom at or above the chosen hazard level, without escalating care. When off, treatments follow the vanilla rules. Default: true. -->
+    <Enabled>true</Enabled>
+    <!-- Threshold used by every department whose Treatment setting you have not changed in this hospital. DiagnosisRelevant treats only what the diagnosis lists (vanilla). High, Medium and Low also treat every other untreated symptom of at least that hazard. Values: DiagnosisRelevant, High, Medium, Low. Default: Medium. -->
+    <DefaultLevel>Medium</DefaultLevel>
+  </TreatmentThreshold>
+  <TreatmentBundling>
+    <!-- Gives all of a patient's pending advice and medication treatments in one doctor visit, instead of one visit and animation per treatment. Default: true. -->
+    <Enabled>true</Enabled>
+  </TreatmentBundling>
+  <IcuStepDown>
+    <!-- Lets you move an ICU patient to the HDU or a ward from the patient card once they no longer need intensive care (diagnosed, no high-hazard or collapse risk, no ICU-only treatment, minimum stay done). In vanilla, ICU patients cannot be moved by hand. Default: true. -->
+    <Enabled>true</Enabled>
+    <!-- AI-controlled ICU patients are moved to the HDU or a ward automatically after a nurse check-up finds they no longer need intensive care. Needs Enabled above. When off, only the manual move remains. Default: true. -->
+    <AutomaticForAiPatients>true</AutomaticForAiPatients>
+    <!-- How many in-game hours a patient must stay in the ICU before they can be moved to a lower care level. Range: 0-72. Default: 8. -->
+    <MinIcuHours>8</MinIcuHours>
+  </IcuStepDown>
+  <UiHighlights>
+    <!-- Hovering a possible diagnosis highlights the available examinations that can reveal one of its hidden symptoms. Default: true. -->
+    <ExamsOnDiagnosisHover>true</ExamsOnDiagnosisHover>
+    <!-- Hovering an examination highlights the possible diagnoses it can reveal a hidden symptom of. Default: true. -->
+    <DiagnosesOnExamHover>true</DiagnosesOnExamHover>
+    <!-- Hovering a finished examination highlights the symptoms it revealed, and hovering a symptom highlights the finished examinations that revealed it. Default: true. -->
+    <SymptomsOnFinishedExamHover>true</SymptomsOnFinishedExamHover>
+    <!-- Hovering a treatment highlights the symptoms and diagnoses it treats, and hovering a symptom or diagnosis highlights its treatments. Default: true. -->
+    <TreatmentInteractions>true</TreatmentInteractions>
+    <!-- Shows diagnosis percentages as whole numbers, with <1% and >99% at the extremes. When off, the vanilla labels are shown. Default: true. -->
+    <RoundedProbabilityLabels>true</RoundedProbabilityLabels>
+    <!-- How strongly a highlighted tile is tinted. 0 leaves it unchanged, 1 fills it with the highlight color. Range: 0-1. Default: 0.2. -->
+    <TileTintStrength>0.2</TileTintStrength>
+    <!-- How strongly a highlighted icon is tinted. 0 leaves it unchanged, 1 fills it with the highlight color. Range: 0-1. Default: 0.45. -->
+    <IconTintStrength>0.45</IconTintStrength>
+  </UiHighlights>
+  <Tooltips>
+    <!-- Examination tooltips list the possible diagnoses the exam can help decide. Default: true. -->
+    <ExaminationRelevantDiagnoses>true</ExaminationRelevantDiagnoses>
+    <!-- The most lines the diagnosis list in an examination tooltip shows. Longer lists end with [...]. Range: 2-30. Default: 7. -->
+    <MaxListedDiagnoses>7</MaxListedDiagnoses>
+    <!-- Diagnosis tooltips list the examinations that can reveal the diagnosis's symptoms, colored by whether they were done and found something. Default: true. -->
+    <DiagnosisDetails>true</DiagnosisDetails>
+    <!-- Symptom tooltips list the examinations that can reveal the symptom and mark the ones already done. Default: true. -->
+    <SymptomDetails>true</SymptomDetails>
+  </Tooltips>
+</SmarterDiagnosisAndTreatmentConfig>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+  <GameDBStringTable ID="MOD_SMARTER_DIAGNOSIS_AND_TREATMENT_DA">
+    <LanguageCode>da</LanguageCode>
+    <LanguageNameLocalized>Dansk</LanguageNameLocalized>
+    <LocalizedStrings>
+      <GameDBLocalizedString>
+        <LocID>MOD_SMARTER_DIAGNOSIS_AND_TREATMENT</LocID>
+        <Text>Smarter Diagnosis and Treatment</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_RELEVANT_DIAGNOSES</LocID>
+        <Text>Relevante diagnoser:</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_RELEVANT_EXAMINATIONS</LocID>
+        <Text>Relevante undersøgelser:</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_HEADER</LocID>
+        <Text>Behandling</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_DIAGNOSIS</LocID>
+        <Text>Kun diagnose</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_HIGH</LocID>
+        <Text>Høj risiko</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_MEDIUM</LocID>
+        <Text>Medium risiko</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_LOW</LocID>
+        <Text>Lav risiko</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_DIAGNOSIS</LocID>
+        <Text>AI-læger ordinerer kun de behandlinger, der er angivet for diagnosen (vanilla). Symptomer med kollapsrisiko behandles altid først.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_LOW</LocID>
+        <Text>AI-læger ordinerer også behandlinger for synlige symptomer med lav risiko eller højere, selv hvis diagnosen ikke angiver dem. Symptomer med kollapsrisiko behandles altid først.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_MEDIUM</LocID>
+        <Text>AI-læger ordinerer også behandlinger for synlige symptomer med medium risiko eller højere, selv hvis diagnosen ikke angiver dem. Symptomer med kollapsrisiko behandles altid først.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_HIGH</LocID>
+        <Text>AI-læger ordinerer også behandlinger for synlige symptomer med høj risiko, selv hvis diagnosen ikke angiver dem. Symptomer med kollapsrisiko behandles altid først.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NOT_DIAGNOSED</LocID>
+        <Text>Patienten skal være diagnosticeret, før han eller hun forlader intensivafdelingen.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_HIGH_HAZARD</LocID>
+        <Text>Patienten har stadig et højrisiko-symptom eller en ubehandlet højrisiko-diagnose.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_COLLAPSE_PENDING</LocID>
+        <Text>Patienten er ved at kollapse.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_ONLY_CARE</LocID>
+        <Text>Patienten har stadig brug for en behandling, der kun findes på intensivafdelingen.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_HIDDEN_RISK</LocID>
+        <Text>Uundersøgte symptomer kan stadig være farlige. Afslut først undersøgelserne.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_MIN_STAY</LocID>
+        <Text>Patienten skal blive på intensivafdelingen i cirka {0} time(r) mere.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_STEP_DOWN_READY</LocID>
+        <Text>Patienten er stabil. Vælg en afdeling for at flytte patienten til dens overvågningsafsnit.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_INVALID_DEPARTMENT</LocID>
+        <Text>Patienter kan ikke flyttes til denne afdeling.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NO_HOSPITALIZATION</LocID>
+        <Text>Denne afdeling har ingen fungerende indlæggelse.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NO_FREE_BED</LocID>
+        <Text>Ingen ledig seng på den afdeling.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NO_TRANSPORT</LocID>
+        <Text>Ingen patienttransport tilgængelig.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_MOVED_HDU</LocID>
+        <Text>Flyttet til overvågningsafsnit: {0}</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_MOVED_WARD</LocID>
+        <Text>Flyttet til sengeafsnit: {0}</Text>
+      </GameDBLocalizedString>
+    </LocalizedStrings>
+  </GameDBStringTable>
+</Database>

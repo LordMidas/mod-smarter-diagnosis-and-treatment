@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+  <GameDBStringTable ID="MOD_SMARTER_DIAGNOSIS_AND_TREATMENT_DE">
+    <LanguageCode>de</LanguageCode>
+    <LanguageNameLocalized>Deutsch</LanguageNameLocalized>
+    <LocalizedStrings>
+      <GameDBLocalizedString>
+        <LocID>MOD_SMARTER_DIAGNOSIS_AND_TREATMENT</LocID>
+        <Text>Smarter Diagnosis and Treatment</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_RELEVANT_DIAGNOSES</LocID>
+        <Text>Relevante Diagnosen:</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_RELEVANT_EXAMINATIONS</LocID>
+        <Text>Relevante Untersuchungen:</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_HEADER</LocID>
+        <Text>Behandlung</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_DIAGNOSIS</LocID>
+        <Text>Nur Diagnose</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_HIGH</LocID>
+        <Text>Hohes Risiko</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_MEDIUM</LocID>
+        <Text>Mittleres Risiko</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_LOW</LocID>
+        <Text>Geringes Risiko</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_DIAGNOSIS</LocID>
+        <Text>KI-Ärzte verschreiben nur die für die Diagnose aufgeführten Behandlungen (Vanilla). Symptome mit Kollapsrisiko werden immer zuerst behandelt.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_LOW</LocID>
+        <Text>KI-Ärzte verschreiben zusätzlich Behandlungen für sichtbare Symptome mit geringem Risiko oder höher, auch wenn die Diagnose sie nicht aufführt. Symptome mit Kollapsrisiko werden immer zuerst behandelt.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_MEDIUM</LocID>
+        <Text>KI-Ärzte verschreiben zusätzlich Behandlungen für sichtbare Symptome mit mittlerem Risiko oder höher, auch wenn die Diagnose sie nicht aufführt. Symptome mit Kollapsrisiko werden immer zuerst behandelt.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_HIGH</LocID>
+        <Text>KI-Ärzte verschreiben zusätzlich Behandlungen für sichtbare Symptome mit hohem Risiko, auch wenn die Diagnose sie nicht aufführt. Symptome mit Kollapsrisiko werden immer zuerst behandelt.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NOT_DIAGNOSED</LocID>
+        <Text>Der Patient muss diagnostiziert sein, bevor er die Intensivstation verlassen darf.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_HIGH_HAZARD</LocID>
+        <Text>Der Patient zeigt noch ein Symptom mit hohem Risiko oder hat eine unbehandelte Diagnose mit hohem Risiko.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_COLLAPSE_PENDING</LocID>
+        <Text>Der Patient steht kurz vor einem Kollaps.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_ONLY_CARE</LocID>
+        <Text>Der Patient braucht noch eine Behandlung, die nur auf der Intensivstation möglich ist.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_HIDDEN_RISK</LocID>
+        <Text>Nicht untersuchte Symptome könnten noch gefährlich sein. Schließe zuerst die Untersuchungen ab.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_MIN_STAY</LocID>
+        <Text>Der Patient muss noch etwa {0} Stunde(n) auf der Intensivstation bleiben.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_STEP_DOWN_READY</LocID>
+        <Text>Der Patient ist stabil. Wähle eine Abteilung, um ihn auf deren Überwachungsstation zu verlegen.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_INVALID_DEPARTMENT</LocID>
+        <Text>Patienten können nicht in diese Abteilung verlegt werden.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NO_HOSPITALIZATION</LocID>
+        <Text>Diese Abteilung hat keine funktionierende Bettenstation.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NO_FREE_BED</LocID>
+        <Text>Kein freies Bett in dieser Abteilung.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NO_TRANSPORT</LocID>
+        <Text>Kein Patiententransport verfügbar.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_MOVED_HDU</LocID>
+        <Text>Verlegt auf Überwachungsstation: {0}</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_MOVED_WARD</LocID>
+        <Text>Verlegt auf Station: {0}</Text>
+      </GameDBLocalizedString>
+    </LocalizedStrings>
+  </GameDBStringTable>
+</Database>

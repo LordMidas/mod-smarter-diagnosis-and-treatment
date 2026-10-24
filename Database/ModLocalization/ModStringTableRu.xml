@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+  <GameDBStringTable ID="MOD_SMARTER_DIAGNOSIS_AND_TREATMENT_RU">
+    <LanguageCode>ru</LanguageCode>
+    <LanguageNameLocalized>Русский</LanguageNameLocalized>
+    <LocalizedStrings>
+      <GameDBLocalizedString>
+        <LocID>MOD_SMARTER_DIAGNOSIS_AND_TREATMENT</LocID>
+        <Text>Smarter Diagnosis and Treatment</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_RELEVANT_DIAGNOSES</LocID>
+        <Text>Релевантные диагнозы:</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_RELEVANT_EXAMINATIONS</LocID>
+        <Text>Релевантные обследования:</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_HEADER</LocID>
+        <Text>Лечение</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_DIAGNOSIS</LocID>
+        <Text>Только диагноз</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_HIGH</LocID>
+        <Text>Высокий риск</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_MEDIUM</LocID>
+        <Text>Средний риск</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_LOW</LocID>
+        <Text>Низкий риск</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_DIAGNOSIS</LocID>
+        <Text>ИИ-врачи назначают только лечение, перечисленное для диагноза (vanilla). Симптомы с риском коллапса всегда лечатся в первую очередь.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_LOW</LocID>
+        <Text>ИИ-врачи также назначают лечение видимых симптомов с низким риском или выше, даже если диагноз их не перечисляет. Симптомы с риском коллапса всегда лечатся в первую очередь.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_MEDIUM</LocID>
+        <Text>ИИ-врачи также назначают лечение видимых симптомов со средним риском или выше, даже если диагноз их не перечисляет. Симптомы с риском коллапса всегда лечатся в первую очередь.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_TREAT_TOOLTIP_HIGH</LocID>
+        <Text>ИИ-врачи также назначают лечение видимых симптомов с высоким риском, даже если диагноз их не перечисляет. Симптомы с риском коллапса всегда лечатся в первую очередь.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NOT_DIAGNOSED</LocID>
+        <Text>Пациента нужно диагностировать, прежде чем он покинет реанимацию.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_HIGH_HAZARD</LocID>
+        <Text>У пациента всё ещё есть симптом высокой опасности или нелеченый диагноз высокой опасности.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_COLLAPSE_PENDING</LocID>
+        <Text>Пациент вот-вот потеряет сознание.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_ONLY_CARE</LocID>
+        <Text>Пациенту всё ещё нужно лечение, доступное только в реанимации.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_HIDDEN_RISK</LocID>
+        <Text>Необследованные симптомы всё ещё могут быть опасны. Сначала завершите обследования.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_MIN_STAY</LocID>
+        <Text>Пациент должен остаться в реанимации ещё примерно {0} ч.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_STEP_DOWN_READY</LocID>
+        <Text>Пациент стабилен. Выберите отделение, чтобы перевести его в его палату интенсивного наблюдения.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_INVALID_DEPARTMENT</LocID>
+        <Text>Пациентов нельзя перевести в это отделение.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NO_HOSPITALIZATION</LocID>
+        <Text>В этом отделении нет работающего стационара.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NO_FREE_BED</LocID>
+        <Text>В этом отделении нет свободных коек.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_NO_TRANSPORT</LocID>
+        <Text>Транспортировка пациентов недоступна.</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_MOVED_HDU</LocID>
+        <Text>Переведён в палату интенсивного наблюдения: {0}</Text>
+      </GameDBLocalizedString>
+      <GameDBLocalizedString>
+        <LocID>MOD_LMSDT_ICU_MOVED_WARD</LocID>
+        <Text>Переведён в палату: {0}</Text>
+      </GameDBLocalizedString>
+    </LocalizedStrings>
+  </GameDBStringTable>
+</Database>

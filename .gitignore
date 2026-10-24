@@ -1,5 +1,7 @@
-ModLMMSmarterDiagnosis/bin/*
-ModLMMSmarterDiagnosis/obj/
+CSharpSource/bin/*
+CSharpSource/obj/
 .vscode/
 *.dll
+!0Harmony.dll
 *.pdb
+.deployignore
