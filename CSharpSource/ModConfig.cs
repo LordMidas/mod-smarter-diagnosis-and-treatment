@@ -169,6 +169,15 @@ namespace ModSmarterDiagnosisAndTreatment
         private static readonly Setting InSurgeryEnabled = Add("CriticalTreatment", "InSurgeryEnabled", true,
             "While a patient is on the operating table, the surgical team handles a pending collapse and treats collapse-risk symptoms right away, instead of waiting until the patient is back in bed.");
 
+        private static readonly Setting FastTrackPriorityAndQueue = Add("FastTrack", "PriorityAndQueue", true,
+            "A patient's queue priority rises when an exam or lab test reveals a more hazardous symptom (a collapse risk counts as High), and waiting rooms serve patients by priority first and then by arrival in the hospital. In vanilla, priority is set once at reception and patients with the same priority can swap places.");
+        private static readonly Setting FastTrackSkipNeeds = Add("FastTrack", "SkipNeeds", true,
+            "Clinic patients with a visible, untreated collapse-risk symptom stay in the queue instead of leaving it to eat, drink or use the toilet, so they reach their doctor sooner.");
+        private static readonly Setting FastTrackNeedsSafetyValve = Add("FastTrack", "NeedsSafetyValve", 90, 51, 100,
+            "With SkipNeeds on, a need at or above this level (out of 100) is still fulfilled; lower needs wait. Vanilla patients go for a need above 50.");
+        private static readonly Setting FastTrackNeedsQueueAllowance = Add("FastTrack", "NeedsQueueAllowance", 4, 0, 30,
+            "With SkipNeeds on, a patient with at least this many patients ahead in the waiting-room queue fulfils needs as usual, since there is time to get back, and returns to the same queue place. 0 turns this off.");
+
         private static readonly Setting SkipForOtherDepartment = Add("ErObservation", "SkipForOtherDepartment", true,
             "When the ER doctor diagnoses a condition that belongs to another department that is available, the patient goes there directly instead of being forced into ER observation first.");
 
@@ -176,7 +185,7 @@ namespace ModSmarterDiagnosisAndTreatment
             "Adds a Treatment setting to each department's management window. Doctors then also plan a treatment for every untreated symptom at or above the chosen hazard level, without escalating care. When off, treatments follow the vanilla rules.");
         // Option order matches TreatmentThresholdLevel.
         private static readonly Setting ThresholdDefaultLevel = Add("TreatmentThreshold", "DefaultLevel",
-            new[] { "DiagnosisRelevant", "High", "Medium", "Low" }, 0,
+            new[] { "DiagnosisRelevant", "High", "Medium", "Low" }, 2,
             "Threshold used by every department whose Treatment setting you have not changed in this hospital. DiagnosisRelevant treats only what the diagnosis lists (vanilla). High, Medium and Low also treat every other untreated symptom of at least that hazard.");
 
         private static readonly Setting BundlingEnabled = Add("TreatmentBundling", "Enabled", true,
@@ -259,6 +268,14 @@ namespace ModSmarterDiagnosisAndTreatment
             public static bool HospitalEnabled => ModConfig.HospitalEnabled.BoolValue;
             public static float SurgeryHoldHours => ModConfig.SurgeryHoldHours.FloatValue;
             public static bool InSurgeryEnabled => ModConfig.InSurgeryEnabled.BoolValue;
+        }
+
+        public static class FastTrack
+        {
+            public static bool PriorityAndQueue => FastTrackPriorityAndQueue.BoolValue;
+            public static bool SkipNeeds => FastTrackSkipNeeds.BoolValue;
+            public static int NeedsSafetyValve => FastTrackNeedsSafetyValve.IntValue;
+            public static int NeedsQueueAllowance => FastTrackNeedsQueueAllowance.IntValue;
         }
 
         public static class ErObservation
