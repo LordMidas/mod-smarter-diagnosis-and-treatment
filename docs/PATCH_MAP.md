@@ -13,7 +13,9 @@ Every Harmony patch in this mod: the vanilla method, the mod class and what it d
 | `ProcedureComponent.SelectExaminationForMedicalCondition` | `ProcedureComponent_SelectExaminationForMedicalCondition` | NPC weighted exam choice |
 | `DiagnosisPanelController.UpdateDiagnoses`, `ExaminationsPanelController.UpdateExaminations/CheckTooltip/UnavailableTooltip`, `SymptomsPanelController.UpdateSymptoms`, `TreatmentPanelController.*`, `TooltipBase.Update` | `HighlightPatches.cs` | Patient context, hover tracking and highlights. One patch class per method, with explicit order |
 | `TooltipExamination/TooltipDiagnosis/TooltipSymptom.UpdateData` | `Tooltip*.cs` | Tooltip extensions |
-| `BehaviorPatient.SelectNextProcedure` (private) | `BehaviorPatient_SelectNextProcedure` | AI clinic patients: plan and start treatments for collapse-risk symptoms before any exam or transfer; hold in the waiting room (about 1 h) instead of leaving untreated |
+| `BehaviorPatient.SelectNextProcedure` (private) | `BehaviorPatient_SelectNextProcedure` | First, vanilla fix (always on): a non-hospitalized patient in `GoingToDoctor` with `m_labSpecialist` set (arrived at a lab specialist's room) and a planned exam only gets `TryToStartScheduledExamination`, skipping vanilla's remote `Diagnose`/critical planning/treatment start by the absent clinic doctor. Then, with `ClinicEnabled`: AI clinic patients plan and start treatments for collapse-risk symptoms before any exam or transfer; hold in the waiting room (about 1 h) instead of leaving untreated |
+| `ProcedureScriptControlDoctorCallsPatient.UpdateStateDoctorReturning` (private) | `ProcedureScriptControlDoctorCallsPatient_UpdateStateDoctorReturning` (`DoctorCallsPatient.cs`) | Vanilla fix (always on): ends the doctor-walks-to-call script (used for waiting rooms without a queue machine) as soon as the doctor turns back, so the patient follows instead of waiting until the doctor is seated. The doctor's `GoToWorkPlace` walk continues |
+| `BehaviorPatient.UpdateStateGoingToDoctor` (private) | `BehaviorPatient_UpdateStateGoingToDoctor` (`DoctorCallsPatient.cs`) | Companion of the call fix: a patient who reached the office (no lab specialist) waits while the assigned doctor is `Idle`, still walking and has this patient as `CurrentPatient`. Capped at 0.25 in-game hours of `m_timeInState` |
 | `BehaviorPatient.ObservationCheck` (private) | `BehaviorPatient_ObservationCheck` | At ER diagnosis, skip forced observation when the diagnosis belongs to another existing department, so the AI transfers instead |
 | `HospitalizationComponent.TryToStartScheduledTreatment` | `HospitalizationComponent_TryToStartScheduledTreatment` | AI hospitalized: collapse-risk treatments go ahead of a queued surgery. Cancels a surgery reservation and hides surgeries from the skip rule (Prefix `out __state` + Finalizer re-inserts them), for up to 2 h |
 | `HospitalizationComponent.UpdateStateBeingTreated` (private) | `HospitalizationComponent_UpdateStateBeingTreated` | AI patient in surgery: resolves a pending collapse with the survival roll (anesthesiologist bonus, no collapse script) and gives collapse-risk treatments instantly |
@@ -43,7 +45,7 @@ Settings in `ModSmarterDiagnosisAndTreatment.Config.xml` (registry in `ModConfig
 | `ExaminationList/FilterEnabled` | Prepare: `ProcedureComponent_GetAllExaminationsForMedicalCondition` |
 | `ExaminationList/SortEnabled` | Early return in the `UpdateAll...` Postfix only. Its Prefix/Finalizer always run because they set `UpdatingComponent` for the filter |
 | `NpcExamChoice/Enabled` | Prepare: `ProcedureComponent_SelectExaminationForMedicalCondition`. `DeferLowPriorityExamsInEr` gates its ER block |
-| `CriticalTreatment/ClinicEnabled` | Prepare: `BehaviorPatient_SelectNextProcedure` |
+| `CriticalTreatment/ClinicEnabled` | Early return in `BehaviorPatient_SelectNextProcedure.Prefix` after the lab-room fix (the class is always patched) |
 | `CriticalTreatment/HospitalEnabled` | Return in `HospitalizationComponent_TryToStartScheduledTreatment.Prefix` right after `GroupHospitalQueue`, so bundling still runs |
 | `CriticalTreatment/InSurgeryEnabled` | Prepare: `HospitalizationComponent_UpdateStateBeingTreated` |
 | `ErObservation/SkipForOtherDepartment` | Prepare: `BehaviorPatient_ObservationCheck` |
@@ -52,3 +54,5 @@ Settings in `ModSmarterDiagnosisAndTreatment.Config.xml` (registry in `ModConfig
 | `IcuStepDown/Enabled` | Prepare: the three `CharacterPanelController_*` classes, and with `AutomaticForAiPatients` also `HospitalizationComponent_SelectNextStep` / `_SwitchState` |
 | `UiHighlights/*` | Early return in each highlight class's track/apply entry points (not in `Restore*`). The `HighlightPatches.cs` classes stay patched, since they also set `PatientPanelContext` for the tooltips |
 | `Tooltips/*` | Prepare: `TooltipExamination_UpdateData`, and the `TooltipDiagnosis` / `TooltipSymptom` patches |
+
+Vanilla fixes without a toggle: the lab-room part of `BehaviorPatient_SelectNextProcedure`, and both classes in `DoctorCallsPatient.cs`.

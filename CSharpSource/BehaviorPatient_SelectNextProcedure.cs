@@ -6,7 +6,9 @@ using Lopital;
 namespace ModSmarterDiagnosisAndTreatment
 {
     /// <summary>
-    /// Clinic patients (AI controlled) with a collapse-risk symptom get its treatment before any exam or transfer.
+    /// Two jobs, in this order:
+    /// 1. Vanilla fix (always on): at a lab specialist's room only the planned exam starts, see <see cref="StartLabExamOnly"/>.
+    /// 2. Clinic patients (AI controlled) with a collapse-risk symptom get its treatment before any exam or transfer.
     /// Vanilla only plans critical treatments at diagnosis, so a symptom revealed by an exam is otherwise ignored
     /// and the patient is transferred or sent away untreated.
     /// </summary>
@@ -21,10 +23,17 @@ namespace ModSmarterDiagnosisAndTreatment
         private static readonly Dictionary<uint, double> nextPlanTime = new Dictionary<uint, double>();
         private static readonly Dictionary<uint, double> blockedSince = new Dictionary<uint, double>();
 
-        private static bool Prepare() => ModConfig.Patch(ModConfig.Critical.ClinicEnabled, nameof(BehaviorPatient_SelectNextProcedure));
+        // Always patched because of the lab-room fix; CriticalTreatment/ClinicEnabled gates the critical part in Prefix.
+        private static bool Prepare() => true;
 
         public static bool Prefix(BehaviorPatient __instance)
         {
+            if (StartLabExamOnly(__instance))
+                return false;
+
+            if (!ModConfig.Critical.ClinicEnabled)
+                return true;
+
             BehaviorPatient patient = __instance;
             BehaviorPatientStateData state = patient.m_state;
             if (state.m_sentHome || state.m_deathTriggered ||
@@ -89,6 +98,28 @@ namespace ModSmarterDiagnosisAndTreatment
             // Vanilla would send the patient away untreated when the first treatment cannot start yet.
             patient.GoToWaitingRoom();
             return false;
+        }
+
+        // Vanilla fix. When a clinic patient walks into a lab specialist's room (radiology, cardio unit, ...),
+        // UpdateStateGoingToDoctor calls SelectNextProcedure with the clinic doctor still assigned (FreeDoctor only
+        // clears the doctor's CurrentPatient). So the absent doctor diagnoses, plans critical treatments and tries to
+        // start a treatment there: a prescription sends the patient to the waiting room, then the planned exam starts
+        // anyway. The patient comes back later with a treatment chosen without this exam's result.
+        // Here only the planned exam starts; the doctor decides at the next office visit, with every result in.
+        private static bool StartLabExamOnly(BehaviorPatient patient)
+        {
+            BehaviorPatientStateData state = patient.m_state;
+            if (state.m_labSpecialist == null || state.m_patientState != PatientState.GoingToDoctor)
+                return false;
+
+            if (patient.m_entity.GetComponent<HospitalizationComponent>().IsHospitalized())
+                return false;
+
+            if (patient.m_entity.GetComponent<ProcedureComponent>().m_state.m_procedureQueue.m_plannedExaminationStates.Count == 0)
+                return false;
+
+            patient.TryToStartScheduledExamination();
+            return true;
         }
 
         private static void PlanCriticalTreatments(BehaviorPatient patient, ProcedureComponent procedureComponent)

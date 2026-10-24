@@ -27,6 +27,7 @@ The full table (vanilla method, mod class, behaviour details, ordering against o
 - **UI highlights and tooltips:** Diagnosis/Examinations/Symptoms/Treatment panel controllers and `TooltipBase.Update` (`HighlightPatches.cs`), `Tooltip*.UpdateData` (`Tooltip*.cs`).
 - **Critical (collapse-risk) treatment:** `BehaviorPatient.SelectNextProcedure`, `HospitalizationComponent.TryToStartScheduledTreatment` / `UpdateStateBeingTreated`, `ProcedureComponent.PlanAllTreatments`.
 - **ER observation:** `BehaviorPatient.ObservationCheck`.
+- **Vanilla fixes (no toggle):** lab-room part of `BehaviorPatient.SelectNextProcedure`.
 - **Treatment threshold UI:** `DepartmentManagementLogisticsHybridController` `Init`/`UpdateCertaintyUI`/`UpdateLayout`/`Update` (`TreatmentThresholdUi.cs`). Ordered against Hospital Porters.
 - **Treatment bundling:** `BehaviorPatient.TryToStartScheduledTreatment` and the `ProcedureScriptTreatmentPrescription` / `ProcedureScriptTreatmentReceipt` state methods (`TreatmentBundling.cs`).
 - **ICU step-down:** `HospitalizationComponent` `SelectNextStep`/`SwitchState`, `CharacterPanelController` `IsAbleToChangeDepartments`/`OnDepartmentSelected`/`Update` (`HospitalizationComponent_*.cs`, `CharacterPanelControllerPatches.cs`, helper `IcuStepDown.cs`). Ordered against Hospital Care Level Transfer.
