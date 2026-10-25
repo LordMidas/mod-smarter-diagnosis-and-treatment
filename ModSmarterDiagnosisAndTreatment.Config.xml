@@ -82,6 +82,14 @@
     <!-- Gives all of a patient's pending advice and medication treatments in one doctor visit, instead of one visit and animation per treatment. Default: true. -->
     <Enabled>true</Enabled>
   </TreatmentBundling>
+  <ExamBundling>
+    <!-- Takes all of a patient's queued blood-sampling exams (blood test, CBC, serology, PCR, ...) in one continuous blood draw. Each exam still makes its own sample for the lab. Default: true. -->
+    <BloodDraw>true</BloodDraw>
+    <!-- Takes all of a patient's queued urine and stool sampling exams together: clinic patients make one trip to the toilet, hospitalized patients get one bedside visit. Each exam still makes its own sample for the lab. Default: true. -->
+    <WasteSamples>true</WasteSamples>
+    <!-- A clinic patient undressed for an exam stays undressed while their own doctor goes on examining them, also through exams that need no undressing; an exam that needs other undressing changes the clothing as usual. The patient dresses again when a treatment starts, an exam is done by other staff or at the toilet, or they leave the doctor. Default: true. -->
+    <KeepUndressed>true</KeepUndressed>
+  </ExamBundling>
   <IcuStepDown>
     <!-- Lets you move an ICU patient to the HDU or a ward from the patient card once they no longer need intensive care (diagnosed, no high-hazard or collapse risk, no ICU-only treatment, minimum stay done). In vanilla, ICU patients cannot be moved by hand. Default: true. -->
     <Enabled>true</Enabled>

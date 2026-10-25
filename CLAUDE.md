@@ -31,6 +31,8 @@ The full table (vanilla method, mod class, behaviour details, ordering against o
 - **Vanilla fixes (no toggle):** lab-room part of `BehaviorPatient.SelectNextProcedure`; doctor-walks-to-call release `ProcedureScriptControlDoctorCallsPatient.UpdateStateDoctorReturning` plus the office wait in `BehaviorPatient.UpdateStateGoingToDoctor` (`DoctorCallsPatient.cs`).
 - **Treatment threshold UI:** `DepartmentManagementLogisticsHybridController` `Init`/`UpdateCertaintyUI`/`UpdateLayout`/`Update` (`TreatmentThresholdUi.cs`). Ordered against Hospital Porters.
 - **Treatment bundling:** `BehaviorPatient.TryToStartScheduledTreatment` and the `ProcedureScriptTreatmentPrescription` / `ProcedureScriptTreatmentReceipt` state methods (`TreatmentBundling.cs`).
+- **Exam bundling:** blood draw `ProcedureScriptExaminationGeneralEquipment.UpdateStateProcedureIdleAnimation`, urine/stool `ProcedureScriptExaminationUrineAnalysis` `UpdatePatientOnToilet` / `UpdateStateEmployeeUsingCabinet` (`ExamBundling.cs`).
+- **Keep undressed:** `AnimModelComponent.SetClothingLevel`, `ProcedureScript.SpeakCharacter` / `SwitchState`, `ProcedureComponent.StartExamination` / `StartTreatment` / `StartReservedProcedure`, `BehaviorPatient.SwitchState` (`KeepUndressed.cs`). Outpatients only.
 - **ICU step-down:** `HospitalizationComponent` `SelectNextStep`/`SwitchState`, `CharacterPanelController` `IsAbleToChangeDepartments`/`OnDepartmentSelected`/`Update` (`HospitalizationComponent_*.cs`, `CharacterPanelControllerPatches.cs`, helper `IcuStepDown.cs`). Ordered against Hospital Care Level Transfer.
 
 Core helpers:
@@ -41,6 +43,8 @@ Core helpers:
 - `HighlightColorSet`: tint/overlay with restore.
 - `CriticalTreatments`: collapse-risk treatment logic, plus `IsAvailable` / `CanStartInClinic` shared with the threshold patch.
 - `TreatmentThreshold`: per-department threshold store, kept in the save via `InsuranceManager.m_state.m_successfulEventsOfType` (keys `LMSDT_TREATMENT_THRESHOLD:<DPT_ID>`). A missing key means "never set" and follows the config `TreatmentThreshold/DefaultLevel`. Every UI choice is stored, with DiagnosisRelevant as -1 because FakeMap returns 0 for a missing key.
+- `ExamBundling`: sampling groups (blood draw, urine/stool; data-driven, memoized), `CanJoin` / `FindNext`, `FinishCurrent` (the vanilla `ProcedureComponent.Update` finish block for a sample taken inside the session) and `SwitchTo` (the script and the active exam move to the next planned exam together). No stored state.
+- `KeepUndressed`: `IsKeeping` (undressed outpatient, own doctor's exam needs FULL or the current level, so any clothing change would only dress them), `StaysWithDoctor`, `LeavesTheRoom` (toilet samples), `Restore`. Stateless: the dress level is saved with the character.
 - `IcuStepDown`: the "no longer needs the ICU" criteria (`GetBlockReason`), target level and bed search, and the transfer (`TryStepDown`), shared by the AI patches (`SwitchState` marks, `SelectNextStep` transfers) and the patient card patches. The cleared set is memory-only, so a save and load loses it until the next ICU check-up.
 - `CriticalTreatments`: "critical" = a symptom with collapse risk (`CollapseProcedureRef`, or a `CollapseSymptomRef` chain leading to one), memoized. Not `Hazard == High`. Also the stable reorder `MoveCriticalAhead`.
 

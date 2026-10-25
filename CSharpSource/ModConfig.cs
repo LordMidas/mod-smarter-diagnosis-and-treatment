@@ -191,6 +191,13 @@ namespace ModSmarterDiagnosisAndTreatment
         private static readonly Setting BundlingEnabled = Add("TreatmentBundling", "Enabled", true,
             "Gives all of a patient's pending advice and medication treatments in one doctor visit, instead of one visit and animation per treatment.");
 
+        private static readonly Setting ExamBundlingBloodDraw = Add("ExamBundling", "BloodDraw", true,
+            "Takes all of a patient's queued blood-sampling exams (blood test, CBC, serology, PCR, ...) in one continuous blood draw. Each exam still makes its own sample for the lab.");
+        private static readonly Setting ExamBundlingWasteSamples = Add("ExamBundling", "WasteSamples", true,
+            "Takes all of a patient's queued urine and stool sampling exams together: clinic patients make one trip to the toilet, hospitalized patients get one bedside visit. Each exam still makes its own sample for the lab.");
+        private static readonly Setting ExamBundlingKeepUndressed = Add("ExamBundling", "KeepUndressed", true,
+            "A clinic patient undressed for an exam stays undressed while their own doctor goes on examining them, also through exams that need no undressing; an exam that needs other undressing changes the clothing as usual. The patient dresses again when a treatment starts, an exam is done by other staff or at the toilet, or they leave the doctor.");
+
         private static readonly Setting IcuEnabled = Add("IcuStepDown", "Enabled", true,
             "Lets you move an ICU patient to the HDU or a ward from the patient card once they no longer need intensive care (diagnosed, no high-hazard or collapse risk, no ICU-only treatment, minimum stay done). In vanilla, ICU patients cannot be moved by hand.");
         private static readonly Setting IcuAutomatic = Add("IcuStepDown", "AutomaticForAiPatients", true,
@@ -292,6 +299,13 @@ namespace ModSmarterDiagnosisAndTreatment
         public static class Bundling
         {
             public static bool Enabled => BundlingEnabled.BoolValue;
+        }
+
+        public static class ExamBundling
+        {
+            public static bool BloodDraw => ExamBundlingBloodDraw.BoolValue;
+            public static bool WasteSamples => ExamBundlingWasteSamples.BoolValue;
+            public static bool KeepUndressed => ExamBundlingKeepUndressed.BoolValue;
         }
 
         public static class Icu

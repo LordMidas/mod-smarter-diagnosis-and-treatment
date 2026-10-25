@@ -33,6 +33,7 @@ Hover over things on the patient card and related items light up. Tooltips also 
 - **Safer surgery.** The OR team handles a collapse *during surgery* on the table and gives urgent treatments right away!
 - **Choose how thorough your doctors are.** A new Treatment section in each department's management window lets you decide whether AI doctors also treat other symptoms beyond the diagnosis-only treatments: Diagnosis only (vanilla), High, Medium or Low hazard.
 - **Efficient animations.** Doctors now combine the prescriptions of multiple similar-treatments into a single animation (lengthened by the number of treatments) instead of each prescription doing a full animation from start to finish. The treatment being given is still shown in a speech bubble on the doctor.
+- **Efficient exams.** Several queued blood samples are taken in one blood draw, and urine and stool samples in one trip to the toilet (or one bedside visit), with each exam still sending its own sample to the lab. A clinic patient who was undressed for an exam stays undressed while their doctor goes on examining them, and dresses again when treatment starts or they leave the doctor.
 - ER patients whose diagnosis belongs to another department are transferred there instead of being held in ER observation.
 
 ## Smarter ICU
