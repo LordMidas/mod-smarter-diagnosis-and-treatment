@@ -53,8 +53,12 @@ namespace ModSmarterDiagnosisAndTreatment
                 return;
 
             TreatmentPanelController panel = treatmentObject.GetComponentInParent<TreatmentPanelController>();
-            if (panel == null || panel.m_availableTreatmentsStaticSegment != treatmentObject)
+            if (panel == null ||
+                (panel.m_availableTreatmentsStaticSegment != treatmentObject &&
+                 panel.m_activeTreatmentsStaticSegment != treatmentObject))
+            {
                 return;
+            }
 
             SegmentController segment = PatientUi.GetSegment(treatmentObject);
             if (segment != null && PatientUi.IsHovered(segment, index))
@@ -84,7 +88,7 @@ namespace ModSmarterDiagnosisAndTreatment
                 AddRequiredHospitalizationTreatment(hoveredTreatment);
                 HighlightTreatedSymptoms(patient, hoveredTreatment);
                 HighlightTreatedDiagnoses(patient, hoveredTreatment);
-                HighlightAvailableTreatments(panel, patient);
+                HighlightTreatments(panel, patient);
                 return;
             }
 
@@ -102,7 +106,7 @@ namespace ModSmarterDiagnosisAndTreatment
                 AddTreatments(symptom.Treatments);
             }
 
-            HighlightAvailableTreatments(panel, patient);
+            HighlightTreatments(panel, patient);
         }
 
         private static GameDBSymptom GetHoveredSymptom(Entity patient)
@@ -137,13 +141,21 @@ namespace ModSmarterDiagnosisAndTreatment
             return PatientUi.GetHoveredDiagnosis(diagnosisPanel, diagnosisPatient, patient);
         }
 
-        private static void HighlightAvailableTreatments(TreatmentPanelController panel, Entity patient)
+        private static void HighlightTreatments(TreatmentPanelController panel, Entity patient)
         {
-            if (panel.m_availableTreatmentsStaticSegment == null)
-                return;
-
             ProcedureComponent procedureComponent = patient.GetComponent<ProcedureComponent>();
             if (procedureComponent == null)
+                return;
+
+            HighlightAvailableTreatments(panel, procedureComponent);
+            HighlightActiveTreatments(panel, patient, procedureComponent);
+        }
+
+        private static void HighlightAvailableTreatments(
+            TreatmentPanelController panel,
+            ProcedureComponent procedureComponent)
+        {
+            if (panel.m_availableTreatmentsStaticSegment == null)
                 return;
 
             // Vanilla UpdateTreatments just rebuilt this map, so it is current and needs no recomputation.
@@ -154,15 +166,44 @@ namespace ModSmarterDiagnosisAndTreatment
                 return;
 
             for (int index = 0; index < availableTreatments.m_keys.Count; index++)
+                HighlightTreatmentItem(segment, index, availableTreatments.m_keys[index]);
+        }
+
+        // Same item order as vanilla UpdateTreatments: planned, active, hospitalization, finished.
+        private static void HighlightActiveTreatments(
+            TreatmentPanelController panel,
+            Entity patient,
+            ProcedureComponent procedureComponent)
+        {
+            SegmentController segment = PatientUi.GetSegment(panel.m_activeTreatmentsStaticSegment);
+            if (segment == null)
+                return;
+
+            ProcedureQueue queue = procedureComponent.m_state.m_procedureQueue;
+            int index = 0;
+            foreach (PlannedTreatmentState planned in queue.m_plannedTreatmentStates)
+                HighlightTreatmentItem(segment, index++, planned.m_treatment.Entry);
+
+            foreach (TreatmentState active in queue.m_activeTreatmentStates)
+                HighlightTreatmentItem(segment, index++, active.m_treatment.Entry);
+
+            HospitalizationComponent hospitalization = patient.GetComponent<HospitalizationComponent>();
+            if (hospitalization != null && hospitalization.IsHospitalized())
+                HighlightTreatmentItem(segment, index++, hospitalization.m_state.m_hospitalizationTreatment.Entry);
+
+            foreach (TreatmentState finished in queue.m_finishedTreatmentStates)
+                HighlightTreatmentItem(segment, index++, finished.m_treatment.Entry);
+        }
+
+        private static void HighlightTreatmentItem(SegmentController segment, int index, GameDBTreatment treatment)
+        {
+            if (treatment != null &&
+                treatment != hoveredTreatment &&
+                index < segment.m_itemCount &&
+                segment.IsInRange(index) &&
+                RelevantTreatments.Contains(treatment))
             {
-                GameDBTreatment treatment = availableTreatments.m_keys[index];
-                if (treatment != hoveredTreatment &&
-                    index < segment.m_itemCount &&
-                    segment.IsInRange(index) &&
-                    RelevantTreatments.Contains(treatment))
-                {
-                    HighlightColors.Apply(segment, index);
-                }
+                HighlightColors.Apply(segment, index);
             }
         }
 
