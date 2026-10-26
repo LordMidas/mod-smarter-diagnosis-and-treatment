@@ -190,6 +190,8 @@ namespace ModSmarterDiagnosisAndTreatment
 
         private static readonly Setting BundlingEnabled = Add("TreatmentBundling", "Enabled", true,
             "Gives all of a patient's pending advice and medication treatments in one doctor visit, instead of one visit and animation per treatment.");
+        private static readonly Setting BundlingHandOverAcrossDesk = Add("TreatmentBundling", "HandOverAcrossDesk", true,
+            "When the doctor already stands on the other side of their own desk or chair from the patient after writing or printing a medication receipt, they hand it over across it instead of walking round to the patient.");
 
         private static readonly Setting ExamBundlingBloodDraw = Add("ExamBundling", "BloodDraw", true,
             "Takes all of a patient's queued blood-sampling exams (blood test, CBC, serology, PCR, ...) in one continuous blood draw. Each exam still makes its own sample for the lab.");
@@ -299,6 +301,7 @@ namespace ModSmarterDiagnosisAndTreatment
         public static class Bundling
         {
             public static bool Enabled => BundlingEnabled.BoolValue;
+            public static bool HandOverAcrossDesk => BundlingHandOverAcrossDesk.BoolValue;
         }
 
         public static class ExamBundling

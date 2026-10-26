@@ -81,6 +81,8 @@
   <TreatmentBundling>
     <!-- Gives all of a patient's pending advice and medication treatments in one doctor visit, instead of one visit and animation per treatment. Default: true. -->
     <Enabled>true</Enabled>
+    <!-- When the doctor already stands on the other side of their own desk or chair from the patient after writing or printing a medication receipt, they hand it over across it instead of walking round to the patient. Default: true. -->
+    <HandOverAcrossDesk>true</HandOverAcrossDesk>
   </TreatmentBundling>
   <ExamBundling>
     <!-- Takes all of a patient's queued blood-sampling exams (blood test, CBC, serology, PCR, ...) in one continuous blood draw. Each exam still makes its own sample for the lab. Default: true. -->

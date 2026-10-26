@@ -525,6 +525,72 @@ namespace ModSmarterDiagnosisAndTreatment
             return Math.Abs(tile.m_x - spot.m_x) <= 1f && Math.Abs(tile.m_y - spot.m_y) <= 1f;
         }
 
+        /// <summary>
+        /// The doctor stands next to their own workstation (work chair, desk or the receipt equipment) and the patient
+        /// is right behind it on the far side, straight across or one tile to the side along the workstation, with no
+        /// wall in between. doctorDirection points from the doctor across the workstation.
+        /// </summary>
+        public static bool TryGetAcrossDesk(ProcedureScript script, Entity doctor, Entity patientEntity, out Direction doctorDirection)
+        {
+            doctorDirection = Direction.None;
+            EmployeeComponent employee = doctor.GetComponent<EmployeeComponent>();
+            TileObject chair = employee.GetWorkChair();
+            TileObject desk = employee.m_state.m_workDesk == null ? null : employee.m_state.m_workDesk.GetEntity();
+            TileObject equipment = script.GetEquipment(0);
+
+            Vector2i doctorTile = doctor.GetComponent<WalkComponent>().GetCurrentTile();
+            Vector2i patientTile = patientEntity.GetComponent<WalkComponent>().GetCurrentTile();
+            int floorIndex = doctor.GetComponent<WalkComponent>().GetFloorIndex();
+            MapScriptInterface map = MapScriptInterface.Instance;
+
+            Vector2i[] directions = Vector2i.ALL_DIRECTIONS;
+            for (int index = 0; index < directions.Length; index++)
+            {
+                Vector2i across = directions[index];
+                Vector2i near = doctorTile + across;
+                if (!IsWorkstationTile(near, chair, desk, equipment) || !map.IsAccessibleNoWalls(doctorTile, near, floorIndex))
+                    continue;
+
+                Vector2i side = new Vector2i(across.m_y, across.m_x);
+                for (int step = -1; step <= 1; step++)
+                {
+                    Vector2i far = new Vector2i(near.m_x + side.m_x * step, near.m_y + side.m_y * step);
+                    if (patientTile != far + across || !IsWorkstationTile(far, chair, desk, equipment))
+                        continue;
+
+                    if ((step != 0 && !map.IsAccessibleNoWalls(near, far, floorIndex)) ||
+                        !map.IsAccessibleNoWalls(far, patientTile, floorIndex))
+                    {
+                        continue;
+                    }
+
+                    doctorDirection = ToDirection(across);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsWorkstationTile(Vector2i tile, TileObject chair, TileObject desk, TileObject equipment)
+        {
+            return (chair != null && chair.m_state.m_position == tile) ||
+                (desk != null && desk.m_state.m_position == tile) ||
+                (equipment != null && equipment.m_state.m_position == tile);
+        }
+
+        // Facing for a one-tile step, as in Vector2i.NW/NE/SE/SW (NW = +x, NE = +y).
+        private static Direction ToDirection(Vector2i step)
+        {
+            if (step.m_x > 0)
+                return Direction.NW;
+
+            if (step.m_x < 0)
+                return Direction.SE;
+
+            return step.m_y > 0 ? Direction.NE : Direction.SW;
+        }
+
         public static void AwardSkillPoints(ProcedureScript script, Entity doctor)
         {
             doctor.GetComponent<EmployeeComponent>().AddPointsToAnyApplicableSkillLevel(
@@ -714,6 +780,52 @@ namespace ModSmarterDiagnosisAndTreatment
 
             use.ReserveObject(workstation);
             use.Activate(UseComponentMode.UNTIL_INTERRUPTED);
+        }
+    }
+
+    /// <summary>
+    /// Medication: a doctor who already stands across their own desk or chair from the patient after writing or
+    /// printing hands the receipt over across it, instead of vanilla's walk round to a tile next to the patient.
+    /// Does the work of vanilla UpdateStateDoctorUsingPrinter and UpdateStateDoctorGoingToPatient without the walk.
+    /// </summary>
+    [HarmonyPatch(typeof(ProcedureScriptTreatmentReceipt), "UpdateStateDoctorUsingPrinter")]
+    public static class ProcedureScriptTreatmentReceipt_UpdateStateDoctorUsingPrinter
+    {
+        private static bool Prepare() => ModConfig.Patch(ModConfig.Bundling.HandOverAcrossDesk, nameof(ProcedureScriptTreatmentReceipt_UpdateStateDoctorUsingPrinter));
+
+        public static bool Prefix(ProcedureScriptTreatmentReceipt __instance)
+        {
+            ProcedureScriptPersistentData data = __instance.m_stateData;
+            Entity doctor = data.m_procedureScene.Doctor.GetEntity();
+            Entity patientEntity = data.m_procedureScene.m_patient.GetEntity();
+            if (doctor == null || patientEntity == null || doctor.GetComponent<UseComponent>().IsBusy() ||
+                patientEntity.GetComponent<HospitalizationComponent>().IsHospitalized())
+            {
+                return true;
+            }
+
+            WalkComponent doctorWalk = doctor.GetComponent<WalkComponent>();
+            WalkComponent patientWalk = patientEntity.GetComponent<WalkComponent>();
+            if (doctorWalk.IsBusy() || patientWalk.IsBusy() || doctorWalk.GetFloorIndex() != patientWalk.GetFloorIndex() ||
+                MapScriptInterface.Instance.GetRoomAt(doctorWalk) != MapScriptInterface.Instance.GetRoomAt(patientWalk))
+            {
+                return true;
+            }
+
+            Direction direction;
+            if (!TreatmentBundling.TryGetAcrossDesk(__instance, doctor, patientEntity, out direction))
+                return true;
+
+            __instance.SpeakCharacter(doctor, "DIALOGUE_STAFF_STATEMENT", "BUBBLE_PRESCRIPTION", -1f);
+            AnimModelComponent doctorModel = doctor.GetComponent<AnimModelComponent>();
+            doctorModel.SetDirection(direction);
+            if (!patientWalk.IsSitting())
+                patientEntity.GetComponent<AnimModelComponent>().SetDirection(direction.GetOppositeDirection());
+
+            doctor.GetComponent<SpeechComponent>().PlayDialogue("DIALOGUE_STAFF_STATEMENT");
+            doctorModel.PlayAnimation("stand_doc_give_receipt", looping: false);
+            __instance.SwitchState(ProcedureScriptTreatmentReceipt.STATE_DOCTOR_GIVING_RECEIPT);
+            return false;
         }
     }
 
