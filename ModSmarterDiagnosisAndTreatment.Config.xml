@@ -87,7 +87,7 @@
     <BloodDraw>true</BloodDraw>
     <!-- Takes all of a patient's queued urine and stool sampling exams together: clinic patients make one trip to the toilet, hospitalized patients get one bedside visit. Each exam still makes its own sample for the lab. Default: true. -->
     <WasteSamples>true</WasteSamples>
-    <!-- A clinic patient undressed for an exam stays undressed while their own doctor goes on examining them, also through exams that need no undressing; an exam that needs other undressing changes the clothing as usual. The patient dresses again when a treatment starts, an exam is done by other staff or at the toilet, or they leave the doctor. Default: true. -->
+    <!-- A clinic patient undressed for an exam stays undressed while their own doctor goes on examining them, also through exams that need no undressing; an exam that needs other undressing changes the clothing as usual. The patient dresses again when they get up and walk for an exam that needs no undressing (eye chart, toilet), a treatment starts, an exam is done by other staff, or they leave the doctor. Default: true. -->
     <KeepUndressed>true</KeepUndressed>
   </ExamBundling>
   <IcuStepDown>

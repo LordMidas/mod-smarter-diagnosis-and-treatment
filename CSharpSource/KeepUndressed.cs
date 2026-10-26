@@ -8,16 +8,16 @@ namespace ModSmarterDiagnosisAndTreatment
     // Vanilla dresses a clinic patient after every exam that undressed them, and the next exam undresses them again.
     // Here the patient stays undressed while their own doctor goes on examining them: the re-dress of the exam scripts
     // is skipped, also before a fully clothed exam, and an exam that needs other undressing changes the clothing to its
-    // own level as in vanilla. The patient is dressed back instantly when a treatment starts, an exam is done by other
-    // staff or away from the room (toilet samples), or the patient leaves the doctor. No state is stored: the dress
-    // level is saved with the character, and every rule reads only the current situation.
+    // own level as in vanilla. The patient is dressed back instantly when they get up and walk during an exam that
+    // does not need their current undressing (eye chart, toilet samples, any mod exam that moves them), a treatment
+    // starts, an exam is done by other staff, or the patient leaves the doctor. No state is stored: the dress level
+    // is saved with the character, and every rule reads only the current situation.
 
     internal static class KeepUndressed
     {
         private const string DressState = "PROCEDURE_PATIENT_DRESS";
         private const string DressBubble = "BUBBLE_DRESS";
         private const float DressWaitSeconds = 3f;
-        private const string UrineAnalysisScript = "ProcedureScriptExaminationUrineAnalysis";
 
         [ThreadStatic] private static bool restoring;
 
@@ -29,23 +29,57 @@ namespace ModSmarterDiagnosisAndTreatment
         /// </summary>
         public static bool IsKeeping(ProcedureScript script, Entity patientEntity)
         {
-            if (script == null || patientEntity == null || script.m_stateData.m_examination == null)
-                return false;
-
-            GameDBExamination examination = script.m_stateData.m_examination.Entry;
-            BehaviorPatient patient = patientEntity.GetComponent<BehaviorPatient>();
-            if (examination == null || patient == null || patientEntity.GetComponent<HospitalizationComponent>().IsHospitalized())
-                return false;
-
-            DressLevel current = patientEntity.GetComponent<AnimModelComponent>().m_state.m_dressLevel;
-            if (current == patient.GetTreatedSymptomDressLevel())
-                return false;
-
-            if (!IsOwnDoctor(patient, script.m_stateData.m_procedureScene.Doctor.GetEntity()))
+            GameDBExamination examination;
+            BehaviorPatient patient;
+            DressLevel current;
+            if (!IsUndressedForOwnDoctor(script, patientEntity, out examination, out patient, out current))
                 return false;
 
             DressLevel required = examination.Procedure.DressLevel;
             return required == DressLevel.FULL || current == patient.GetTreatedSymptomDressLevel(required);
+        }
+
+        /// <summary>The script is an exam of an undressed clinic patient by their own doctor.</summary>
+        private static bool IsUndressedForOwnDoctor(ProcedureScript script, Entity patientEntity,
+            out GameDBExamination examination, out BehaviorPatient patient, out DressLevel current)
+        {
+            examination = null;
+            patient = null;
+            current = DressLevel.FULL;
+            if (script == null || patientEntity == null || script.m_stateData.m_examination == null)
+                return false;
+
+            examination = script.m_stateData.m_examination.Entry;
+            patient = patientEntity.GetComponent<BehaviorPatient>();
+            if (examination == null || patient == null || patientEntity.GetComponent<HospitalizationComponent>().IsHospitalized())
+                return false;
+
+            current = patientEntity.GetComponent<AnimModelComponent>().m_state.m_dressLevel;
+            if (current == patient.GetTreatedSymptomDressLevel())
+                return false;
+
+            return IsOwnDoctor(patient, script.m_stateData.m_procedureScene.Doctor.GetEntity());
+        }
+
+        /// <summary>
+        /// A patient who gets up and walks during their own doctor's exam is dressed back unless the exam needs
+        /// exactly their current undressing: a fully clothed exam that moves them (eye chart, toilet samples) or
+        /// one that needs other undressing. Only ever dresses: an undressing exam still undresses them on arrival.
+        /// </summary>
+        public static void OnPatientWalks(Entity patientEntity)
+        {
+            ProcedureComponent component = patientEntity.GetComponent<ProcedureComponent>();
+            if (component == null || component.m_state.m_currentProcedureScript == null)
+                return;
+
+            GameDBExamination examination;
+            BehaviorPatient patient;
+            DressLevel current;
+            if (IsUndressedForOwnDoctor(component.m_state.m_currentProcedureScript.GetEntity(), patientEntity, out examination, out patient, out current) &&
+                current != patient.GetTreatedSymptomDressLevel(examination.Procedure.DressLevel))
+            {
+                Restore(patientEntity);
+            }
         }
 
         private static bool IsOwnDoctor(BehaviorPatient patient, Entity doctor)
@@ -75,12 +109,6 @@ namespace ModSmarterDiagnosisAndTreatment
         {
             BehaviorPatient patient = patientEntity.GetComponent<BehaviorPatient>();
             return patient != null && IsOwnDoctor(patient, doctor);
-        }
-
-        /// <summary>A clinic patient walks to a toilet for urine and stool samples.</summary>
-        public static bool LeavesTheRoom(GameDBExamination examination)
-        {
-            return examination != null && examination.Procedure.ProcedureScript == UrineAnalysisScript;
         }
 
         /// <summary>Dresses a clinic patient back instantly if an exam left them undressed.</summary>
@@ -176,10 +204,9 @@ namespace ModSmarterDiagnosisAndTreatment
     {
         private static bool Prepare() => ModConfig.Patch(ModConfig.ExamBundling.KeepUndressed, nameof(ProcedureComponent_StartExamination_Staff));
 
-        public static void Prefix(ProcedureComponent __instance, GameDBExamination examination, Entity doctor, Entity nurse, Entity labSpecialist)
+        public static void Prefix(ProcedureComponent __instance, Entity doctor, Entity nurse, Entity labSpecialist)
         {
-            if (nurse == null && labSpecialist == null && !KeepUndressed.LeavesTheRoom(examination) &&
-                KeepUndressed.StaysWithDoctor(__instance.m_entity, doctor))
+            if (nurse == null && labSpecialist == null && KeepUndressed.StaysWithDoctor(__instance.m_entity, doctor))
             {
                 return;
             }
@@ -222,6 +249,32 @@ namespace ModSmarterDiagnosisAndTreatment
         public static void Prefix(ProcedureComponent __instance)
         {
             KeepUndressed.Restore(__instance.m_entity);
+        }
+    }
+
+    /// <summary>Getting up and walking during an exam that does not need the current undressing dresses the patient back.</summary>
+    [HarmonyPatch]
+    public static class WalkComponent_Walk
+    {
+        private static bool Prepare() => ModConfig.Patch(ModConfig.ExamBundling.KeepUndressed, nameof(WalkComponent_Walk));
+
+        private static System.Collections.Generic.IEnumerable<System.Reflection.MethodBase> TargetMethods()
+        {
+            foreach (System.Reflection.MethodInfo method in typeof(WalkComponent).GetMethods())
+            {
+                if (method.DeclaringType == typeof(WalkComponent) &&
+                    (method.Name == nameof(WalkComponent.SetDestination) || method.Name == nameof(WalkComponent.GoSit)))
+                {
+                    yield return method;
+                }
+            }
+        }
+
+        public static void Prefix(WalkComponent __instance)
+        {
+            Entity entity = __instance.m_entity;
+            if (entity != null && entity.GetComponent<BehaviorPatient>() != null)
+                KeepUndressed.OnPatientWalks(entity);
         }
     }
 
