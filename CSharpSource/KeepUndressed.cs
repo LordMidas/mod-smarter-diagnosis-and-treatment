@@ -10,7 +10,8 @@ namespace ModSmarterDiagnosisAndTreatment
     // is skipped, also before a fully clothed exam, and an exam that needs other undressing changes the clothing to its
     // own level as in vanilla. The patient is dressed back instantly when they get up and walk during an exam that
     // does not need their current undressing (eye chart, toilet samples, any mod exam that moves them), a treatment
-    // starts, an exam is done by other staff, or the patient leaves the doctor. No state is stored: the dress level
+    // starts, an exam is done by other staff, or the patient leaves the doctor (also when admitted to hospitalization
+    // from the office). No state is stored: the dress level
     // is saved with the character, and every rule reads only the current situation.
 
     internal static class KeepUndressed
@@ -118,6 +119,22 @@ namespace ModSmarterDiagnosisAndTreatment
             if (patient == null || patientEntity.GetComponent<HospitalizationComponent>().IsHospitalized())
                 return;
 
+            Dress(patientEntity, patient);
+        }
+
+        /// <summary>
+        /// Dresses a patient back who was just admitted to hospitalization straight from their doctor's office.
+        /// Vanilla admits them dressed, as every exam re-dresses, and hospitalization does not dress on admission.
+        /// </summary>
+        public static void OnHospitalizedFromDoctor(Entity patientEntity)
+        {
+            BehaviorPatient patient = patientEntity.GetComponent<BehaviorPatient>();
+            if (patient != null)
+                Dress(patientEntity, patient);
+        }
+
+        private static void Dress(Entity patientEntity, BehaviorPatient patient)
+        {
             AnimModelComponent model = patientEntity.GetComponent<AnimModelComponent>();
             DressLevel dressed = patient.GetTreatedSymptomDressLevel();
             if (model.m_state.m_dressLevel == dressed)
@@ -284,10 +301,21 @@ namespace ModSmarterDiagnosisAndTreatment
     {
         private static bool Prepare() => ModConfig.Patch(ModConfig.ExamBundling.KeepUndressed, nameof(BehaviorPatient_SwitchState));
 
-        public static void Postfix(BehaviorPatient __instance, PatientState state)
+        public static void Prefix(BehaviorPatient __instance, out PatientState __state)
+        {
+            __state = __instance.m_state.m_patientState;
+        }
+
+        public static void Postfix(BehaviorPatient __instance, PatientState state, PatientState __state)
         {
             switch (state)
             {
+                // Admitted to hospitalization straight from the doctor's office.
+                case PatientState.OverriddenByHospitalization:
+                    if (__state == PatientState.GoingToDoctor || __state == PatientState.BeingExamined || __state == PatientState.BeingTreated)
+                        KeepUndressed.OnHospitalizedFromDoctor(__instance.m_entity);
+                    return;
+
                 // With the doctor, or owned by systems that set the clothing themselves.
                 case PatientState.GoingToDoctor:
                 case PatientState.BeingExamined:
@@ -295,7 +323,6 @@ namespace ModSmarterDiagnosisAndTreatment
                 case PatientState.GoingToCollapse:
                 case PatientState.Collapsing:
                 case PatientState.Dead:
-                case PatientState.OverriddenByHospitalization:
                     return;
             }
 
