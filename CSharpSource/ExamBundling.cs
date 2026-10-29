@@ -120,6 +120,23 @@ namespace ModSmarterDiagnosisAndTreatment
             return ProcedureScene.IsProcedureAvailable(scene.m_availability);
         }
 
+        /// <summary>The employee doing the exam: the nurse of a nurse exam script, else the doctor (null for others).</summary>
+        private static Entity GetPerformer(ProcedureScript script)
+        {
+            ProcedureScene scene = script.m_stateData.m_procedureScene;
+            if (NurseExams.IsNurseScript(script))
+                return scene.Nurse == null ? null : scene.Nurse.GetEntity();
+
+            Entity doctor = scene.Doctor == null ? null : scene.Doctor.GetEntity();
+            return doctor != null && doctor.GetComponent<BehaviorDoctor>() != null ? doctor : null;
+        }
+
+        // The qualifications the performer's skill and skill points come from.
+        private static DatabaseEntryRef<GameDBSkill>[] GetQualifications(ProcedureScript script, GameDBExamination examination)
+        {
+            return NurseExams.IsNurseScript(script) ? NurseExams.NurseQualifications : examination.Procedure.RequiredDoctorQualifications;
+        }
+
         /// <summary>Whether the examination can join the session the script is running now.</summary>
         public static bool CanJoin(ProcedureScript script, GameDBExamination examination)
         {
@@ -132,9 +149,9 @@ namespace ModSmarterDiagnosisAndTreatment
             }
 
             ProcedureScene scene = script.m_stateData.m_procedureScene;
-            Entity doctor = scene.Doctor == null ? null : scene.Doctor.GetEntity();
+            Entity performer = GetPerformer(script);
             Entity patientEntity = scene.m_patient == null ? null : scene.m_patient.GetEntity();
-            if (doctor == null || patientEntity == null || doctor.GetComponent<BehaviorDoctor>() == null)
+            if (performer == null || patientEntity == null)
                 return false;
 
             ProcedureComponent component = patientEntity.GetComponent<ProcedureComponent>();
@@ -143,8 +160,18 @@ namespace ModSmarterDiagnosisAndTreatment
                 return false;
 
             GameDBProcedure procedure = examination.Procedure;
-            EmployeeComponent employee = doctor.GetComponent<EmployeeComponent>();
-            if ((procedure.RequiredDoctorQualifications != null && !employee.HasAnySkill(procedure.RequiredDoctorQualifications)) ||
+            EmployeeComponent employee = performer.GetComponent<EmployeeComponent>();
+            if (NurseExams.IsNurseScript(script))
+            {
+                // A nurse only takes exams nurses do here, run by the same nurse script.
+                if (!NurseExams.Applies(patientEntity, examination) ||
+                    NurseExams.GetNurseProcedure(examination).ProcedureScript != script.GetType().Name ||
+                    !employee.HasAnySkill(NurseExams.NurseQualifications))
+                {
+                    return false;
+                }
+            }
+            else if ((procedure.RequiredDoctorQualifications != null && !employee.HasAnySkill(procedure.RequiredDoctorQualifications)) ||
                 (procedure.RequiredSkillsToPrescribe != null && !employee.HasAnySkill(procedure.RequiredSkillsToPrescribe)))
             {
                 return false;
@@ -216,16 +243,19 @@ namespace ModSmarterDiagnosisAndTreatment
         }
 
         // What the script would have given at its own end for an exam that ends inside the session instead.
-        private static void CreditFinished(ProcedureScript script, GameDBExamination examination, Entity doctor, BehaviorPatient patient)
+        private static void CreditFinished(ProcedureScript script, GameDBExamination examination, Entity performer, BehaviorPatient patient)
         {
             string skillPoints = null;
-            if (script is ProcedureScriptExaminationGeneralEquipment || script is ProcedureScriptExaminationUrineAnalysis)
+            if (script is ProcedureScriptExaminationGeneralEquipment || script is ProcedureScriptExaminationUrineAnalysis ||
+                script is LmsdtNurseExaminationGeneralEquipment || script is LmsdtNurseExaminationUrineAnalysis)
+            {
                 skillPoints = "TWEAKABLE_EXAMINATION_EQUIPMENT_SKILL_POINTS";
+            }
 
             if (skillPoints != null)
             {
-                doctor.GetComponent<EmployeeComponent>().AddPointsToAnyApplicableSkillLevel(
-                    examination.Procedure.RequiredDoctorQualifications,
+                performer.GetComponent<EmployeeComponent>().AddPointsToAnyApplicableSkillLevel(
+                    GetQualifications(script, examination),
                     Database.Instance.GetEntry<GameDBTweakableInt>(skillPoints).Value);
             }
 
@@ -238,10 +268,10 @@ namespace ModSmarterDiagnosisAndTreatment
         public static void SwitchTo(ProcedureScript script, int index, bool announce)
         {
             ProcedureScene scene = script.m_stateData.m_procedureScene;
-            Entity doctor = scene.Doctor.GetEntity();
+            Entity performer = GetPerformer(script);
             Entity patientEntity = scene.m_patient.GetEntity();
             BehaviorPatient patient = patientEntity.GetComponent<BehaviorPatient>();
-            CreditFinished(script, script.m_stateData.m_examination.Entry, doctor, patient);
+            CreditFinished(script, script.m_stateData.m_examination.Entry, performer, patient);
 
             ProcedureComponent component = patientEntity.GetComponent<ProcedureComponent>();
             List<PlannedExaminationState> planned = component.m_state.m_procedureQueue.m_plannedExaminationStates;
@@ -250,23 +280,49 @@ namespace ModSmarterDiagnosisAndTreatment
             component.m_state.m_procedureQueue.m_activeExamination = examination;
             script.m_stateData.m_examination = examination;
 
-            EmployeeComponent employee = doctor.GetComponent<EmployeeComponent>();
+            EmployeeComponent employee = performer.GetComponent<EmployeeComponent>();
             employee.SetReserved(examination.DatabaseID.ToString(), patientEntity);
-            if (!doctor.GetComponent<PerkComponent>().m_perkSet.HasPerk("PERK_COMFORTING"))
+            if (!performer.GetComponent<PerkComponent>().m_perkSet.HasPerk("PERK_COMFORTING"))
                 patientEntity.GetComponent<MoodComponent>().AddDiscomfortModifier(examination);
 
-            if (script is ProcedureScriptExaminationGeneralEquipment)
+            if (script is ProcedureScriptExaminationGeneralEquipment || script is LmsdtNurseExaminationGeneralEquipment)
             {
-                float skill = employee.GetAnyApplicableSkillLevel(examination.Procedure.RequiredDoctorQualifications);
+                float skill = employee.GetAnyApplicableSkillLevel(GetQualifications(script, examination));
                 script.SetParam(ParamEmployeeSkill, skill);
-                script.SetParam(ParamProcedureTime, script.GetActionTime(doctor, ActionTimeConstant, skill));
+                script.SetParam(ParamProcedureTime, script.GetActionTime(performer, ActionTimeConstant, skill));
             }
 
             if (announce)
             {
-                script.SilenceCharacter(doctor);
-                script.SpeakCharacter(doctor, "DIALOGUE_STAFF_ORDER_PATIENT", examination.IconIndex, -1f);
+                script.SilenceCharacter(performer);
+                script.SpeakCharacter(performer, "DIALOGUE_STAFF_ORDER_PATIENT", examination.IconIndex, -1f);
             }
+        }
+
+        /// <summary>
+        /// Blood draw idle loop at its end: takes the next joinable blood sample in the same loop. True when it did,
+        /// so the script's own state update is skipped this frame. Also called by the nurse blood draw script.
+        /// </summary>
+        public static bool ContinueBloodDraw(ProcedureScript script)
+        {
+            ProcedureScriptPersistentData data = script.m_stateData;
+            if (data.m_timeInState <= script.GetParam(ParamProcedureTime) ||
+                GetGroup(data.m_examination == null ? null : data.m_examination.Entry) != ExamBundleGroup.BloodDraw)
+            {
+                return false;
+            }
+
+            int next = FindNext(script);
+            if (next < 0)
+                return false;
+
+            CreateSample(script, data.m_procedureScene.m_patient.GetEntity());
+            if (!FinishCurrent(script))
+                return false;
+
+            SwitchTo(script, next, true);
+            data.m_timeInState = 0f;
+            return true;
         }
 
         /// <summary>The vanilla sample creation of the sampling scripts, for the running exam.</summary>
@@ -310,24 +366,7 @@ namespace ModSmarterDiagnosisAndTreatment
 
         public static bool Prefix(ProcedureScriptExaminationGeneralEquipment __instance)
         {
-            ProcedureScriptPersistentData data = __instance.m_stateData;
-            if (data.m_timeInState <= __instance.GetParam(2) ||
-                ExamBundling.GetGroup(data.m_examination == null ? null : data.m_examination.Entry) != ExamBundleGroup.BloodDraw)
-            {
-                return true;
-            }
-
-            int next = ExamBundling.FindNext(__instance);
-            if (next < 0)
-                return true;
-
-            ExamBundling.CreateSample(__instance, data.m_procedureScene.m_patient.GetEntity());
-            if (!ExamBundling.FinishCurrent(__instance))
-                return true;
-
-            ExamBundling.SwitchTo(__instance, next, true);
-            data.m_timeInState = 0f;
-            return false;
+            return !ExamBundling.ContinueBloodDraw(__instance);
         }
     }
 

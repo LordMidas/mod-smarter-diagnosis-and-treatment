@@ -2,7 +2,7 @@
 
 General Project Hospital modding knowledge (paths, build and deploy, conventions, Harmony compatibility registry) is in the shared CLAUDE.md, vanilla engine facts in the `ph-*` skills. This file holds only what is specific to this mod.
 
-Project Hospital mod (Harmony 2, net35, Harmony ID `lordmidas.SmarterDiagnosisAndTreatment`) that makes diagnosis and treatment smarter for NPC doctors and the player UI: log-likelihood diagnosis scoring, a relevance-filtered exam list and weighted NPC exam choice, UI highlights and tooltips, collapse-risk treatment, fast track, treatment and exam bundling, ICU step-down, plus some vanilla fixes.
+Project Hospital mod (Harmony 2, net35, Harmony ID `lordmidas.SmarterDiagnosisAndTreatment`) that makes diagnosis and treatment smarter for NPC doctors and the player UI: log-likelihood diagnosis scoring, a relevance-filtered exam list and weighted NPC exam choice, UI highlights and tooltips, collapse-risk treatment, fast track, treatment and exam bundling, ICU step-down, nurse bedside exams for hospitalized patients, plus some vanilla fixes.
 
 ## Build
 - `dotnet build CSharpSource/ModSmarterDiagnosisAndTreatment.csproj` writes the DLL to this folder's root; deploy with Ctrl+Shift+B (`build and deploy`). `.deployignore` also excludes `/CSharpSource/`, `/tools/`, `docs/` and the dev files.
@@ -21,7 +21,7 @@ Project Hospital mod (Harmony 2, net35, Harmony ID `lordmidas.SmarterDiagnosisAn
 - After adding or changing a setting, regenerate the shipped file with the `ph-new-mod` ConfigRegen tool, passing `-p:ConfigStubs=tools/ConfigStubs.cs`. Keep the stubs in sync with every mod type `ModConfig.cs` references (currently the `TreatmentThresholdLevel` enum).
 
 ## Patch map
-[docs/PATCH_MAP.md](docs/PATCH_MAP.md) lists every patch by feature section, with the config toggles at the end. Read the section you need before changing a patch, and update it with every patch change. Sections: diagnosis scoring, exam list and NPC exam choice, UI highlights and tooltips, critical treatment and ER observation, fast track, vanilla fixes, treatment threshold UI (ordered against Hospital Porters), treatment bundling (incl. receipt hand-over across the desk), exam bundling, keep undressed, ICU step-down (ordered against Hospital Care Level Transfer).
+[docs/PATCH_MAP.md](docs/PATCH_MAP.md) lists every patch by feature section, with the config toggles at the end. Read the section you need before changing a patch, and update it with every patch change. Sections: diagnosis scoring, exam list and NPC exam choice, UI highlights and tooltips, critical treatment and ER observation, fast track, vanilla fixes, treatment threshold UI (ordered against Hospital Porters), treatment bundling (incl. receipt hand-over across the desk), exam bundling, keep undressed, ICU step-down (ordered against Hospital Care Level Transfer), nurse bedside exams.
 
 ## Core helpers
 - `ModDb`: cached DB entries.
@@ -34,8 +34,10 @@ Project Hospital mod (Harmony 2, net35, Harmony ID `lordmidas.SmarterDiagnosisAn
 - `TreatmentBundling`: groups joinable advice / medication (`GroupHospitalQueue` for hospitalized patients) and `TryGetAcrossDesk` for the receipt hand-over.
 - `ExamBundling`: sampling groups (blood draw, urine/stool; data-driven, memoized), `CanJoin` (also: a lab sample must be testable here, its testing exam's procedure scene in the department; else it stays planned) / `FindNext`, `FinishCurrent` (vanilla's `ProcedureComponent.Update` finish block for a sample taken inside the session) and `SwitchTo` (script and active exam move to the next planned exam together). No stored state.
 - `KeepUndressed`: `IsKeeping`, `StaysWithDoctor`, `OnPatientWalks` (only ever dresses, never undresses early), `Restore`. Stateless: the dress level is saved with the character.
+- `NurseExams`: listed exams of hospitalized patients are reserved with a nurses-station nurse through a memoized procedure copy (nurse qualification, `DEFAULT_ROOMS`, `Lmsdt*` nurse script). Doctor fallback when no qualified nurse exists, or when busy with `WaitForNurse` off. No stored state.
 - `IcuStepDown`: the "no longer needs the ICU" criteria (`GetBlockReason`), target level and bed search, and the transfer (`TryStepDown`), shared by the AI patches and the patient card patches. The cleared set is memory-only, so a save and load loses it until the next ICU check-up.
 
 ## Pitfalls
 - Patient-dependent tooltip text must use `PatientPanelContext.CurrentPatient`, which is null outside patient-card panels. Do not use a "last seen patient" static.
 - `HospitalizationComponent_TryToStartScheduledTreatment` is shared by treatment bundling (`GroupHospitalQueue`, always first) and critical treatment; keep that order when changing either feature.
+- `CSharpSource/NurseExamScripts/Lmsdt*.cs` are ports of vanilla exam scripts: re-diff them against `ProcedureScriptExaminationGeneral` / `GeneralEquipment` / `UrineAnalysis` after game updates. Code that reads an exam script's performer must not assume `m_procedureScene.Doctor` (null in nurse scenes); `ExamBundling.GetPerformer` handles both.

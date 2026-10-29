@@ -23,8 +23,10 @@ namespace ModSmarterDiagnosisAndTreatment
         {
             public string Section;
             public string Key;
-            public char Kind; // 'b', 'i', 'f' or 'c' (choice: IntValue indexes Options)
+            public char Kind; // 'b', 'i', 'f', 'c' (choice: IntValue indexes Options) or 'l' (comma-separated list)
             public string[] Options;
+            public string[] ListValue;
+            public string[] ListDefault;
             public bool BoolValue;
             public int IntValue;
             public float FloatValue;
@@ -42,6 +44,7 @@ namespace ModSmarterDiagnosisAndTreatment
                     case 'b': return (defaultValue ? BoolDefault : BoolValue) ? "true" : "false";
                     case 'i': return (defaultValue ? IntDefault : IntValue).ToString(CultureInfo.InvariantCulture);
                     case 'c': return Options[defaultValue ? IntDefault : IntValue];
+                    case 'l': return string.Join(", ", defaultValue ? ListDefault : ListValue);
                     default: return (defaultValue ? FloatDefault : FloatValue).ToString(CultureInfo.InvariantCulture);
                 }
             }
@@ -53,6 +56,7 @@ namespace ModSmarterDiagnosisAndTreatment
                     case 'b': return BoolValue == BoolDefault;
                     case 'i':
                     case 'c': return IntValue == IntDefault;
+                    case 'l': return FormatValue(false) == FormatValue(true);
                     default: return FloatValue == FloatDefault;
                 }
             }
@@ -60,7 +64,7 @@ namespace ModSmarterDiagnosisAndTreatment
             public string Comment()
             {
                 string defaultText = "Default: " + FormatValue(true) + ".";
-                if (Kind == 'b')
+                if (Kind == 'b' || Kind == 'l')
                     return " " + Description + " " + defaultText + " ";
                 if (Kind == 'c')
                     return " " + Description + " Values: " + string.Join(", ", Options) + ". " + defaultText + " ";
@@ -112,6 +116,17 @@ namespace ModSmarterDiagnosisAndTreatment
             {
                 Section = section, Key = key, Kind = 'c', Description = description, Options = options,
                 IntValue = defaultIndex, IntDefault = defaultIndex
+            };
+            All.Add(setting);
+            return setting;
+        }
+
+        private static Setting Add(string section, string key, string[] defaultList, string description)
+        {
+            Setting setting = new Setting
+            {
+                Section = section, Key = key, Kind = 'l', Description = description,
+                ListValue = defaultList, ListDefault = defaultList
             };
             All.Add(setting);
             return setting;
@@ -206,6 +221,20 @@ namespace ModSmarterDiagnosisAndTreatment
             "AI-controlled ICU patients are moved to the HDU or a ward automatically after a nurse check-up finds they no longer need intensive care. Needs Enabled above. When off, only the manual move remains.");
         private static readonly Setting MinIcuHours = Add("IcuStepDown", "MinIcuHours", 8f, 0f, 72f,
             "How many in-game hours a patient must stay in the ICU before they can be moved to a lower care level.");
+
+        private static readonly Setting NurseExamsEnabled = Add("NurseExams", "Enabled", true,
+            "Hospitalized patients get the examinations listed below from a nurse of their department's nurses' station instead of the on-call doctor. If the department has no nurse who can do it, the doctor does the exam as usual.");
+        private static readonly Setting NurseExamsWaitForNurse = Add("NurseExams", "WaitForNurse", true,
+            "When all nurses who could do a listed exam are busy, the patient waits for one. When off, the on-call doctor does the exam instead.");
+        private static readonly Setting NurseExamsList = Add("NurseExams", "Examinations",
+            new[]
+            {
+                "EXM_BLOOD_PRESSURE_AND_PULSE_MEASUREMENT", "EXM_TEMPERATURE_MEASUREMENT", "EXM_PULSE_OXYMETRY",
+                "EXM_HEART_MONITORING", "EXM_BLOOD_TEST_SAMPLING", "EXM_CBC_SAMPLING", "EXM_SEROLOGY_TESTING_SAMPLING",
+                "EXM_PCR_SAMPLING", "EXM_RT_PCR_SAMPLING", "EXM_ELISA_SAMPLING", "EXM_URINE_SAMPLE_ANALYSIS_SAMPLING",
+                "EXM_STOOL_ANALYSIS_SAMPLING", "EXM_FECAL_ELASTASE_TEST_SAMPLING"
+            },
+            "Comma-separated examination IDs done by nurses for hospitalized patients. Only bedside exams that use the general, general-equipment or urine/stool sampling procedure can be listed; other IDs are ignored with a warning in the game log.");
 
         private static readonly Setting ExamsOnDiagnosisHover = Add("UiHighlights", "ExamsOnDiagnosisHover", true,
             "Hovering a possible diagnosis highlights the available examinations that can reveal one of its hidden symptoms.");
@@ -316,6 +345,13 @@ namespace ModSmarterDiagnosisAndTreatment
             public static bool Enabled => IcuEnabled.BoolValue;
             public static bool AutomaticForAiPatients => IcuAutomatic.BoolValue;
             public static float MinIcuHours => ModConfig.MinIcuHours.FloatValue;
+        }
+
+        public static class NurseExams
+        {
+            public static bool Enabled => NurseExamsEnabled.BoolValue;
+            public static bool WaitForNurse => NurseExamsWaitForNurse.BoolValue;
+            public static string[] Examinations => NurseExamsList.ListValue;
         }
 
         public static class Highlights
@@ -470,6 +506,17 @@ namespace ModSmarterDiagnosisAndTreatment
                         Debug.LogWarning(LogPrefix + name + " must be one of " + string.Join(", ", setting.Options) + ", got '" + text + "'; using default " + setting.FormatValue(true));
                     else
                         setting.IntValue = index;
+                    break;
+
+                case 'l':
+                    List<string> items = new List<string>();
+                    foreach (string item in text.Split(','))
+                    {
+                        string trimmed = item.Trim();
+                        if (trimmed.Length > 0 && !items.Contains(trimmed))
+                            items.Add(trimmed);
+                    }
+                    setting.ListValue = items.ToArray();
                     break;
 
                 default:

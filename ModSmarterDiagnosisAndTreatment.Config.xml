@@ -100,6 +100,14 @@
     <!-- How many in-game hours a patient must stay in the ICU before they can be moved to a lower care level. Range: 0-72. Default: 8. -->
     <MinIcuHours>8</MinIcuHours>
   </IcuStepDown>
+  <NurseExams>
+    <!-- Hospitalized patients get the examinations listed below from a nurse of their department's nurses' station instead of the on-call doctor. If the department has no nurse who can do it, the doctor does the exam as usual. Default: true. -->
+    <Enabled>true</Enabled>
+    <!-- When all nurses who could do a listed exam are busy, the patient waits for one. When off, the on-call doctor does the exam instead. Default: true. -->
+    <WaitForNurse>true</WaitForNurse>
+    <!-- Comma-separated examination IDs done by nurses for hospitalized patients. Only bedside exams that use the general, general-equipment or urine/stool sampling procedure can be listed; other IDs are ignored with a warning in the game log. Default: EXM_BLOOD_PRESSURE_AND_PULSE_MEASUREMENT, EXM_TEMPERATURE_MEASUREMENT, EXM_PULSE_OXYMETRY, EXM_HEART_MONITORING, EXM_BLOOD_TEST_SAMPLING, EXM_CBC_SAMPLING, EXM_SEROLOGY_TESTING_SAMPLING, EXM_PCR_SAMPLING, EXM_RT_PCR_SAMPLING, EXM_ELISA_SAMPLING, EXM_URINE_SAMPLE_ANALYSIS_SAMPLING, EXM_STOOL_ANALYSIS_SAMPLING, EXM_FECAL_ELASTASE_TEST_SAMPLING. -->
+    <Examinations>EXM_BLOOD_PRESSURE_AND_PULSE_MEASUREMENT, EXM_TEMPERATURE_MEASUREMENT, EXM_PULSE_OXYMETRY, EXM_HEART_MONITORING, EXM_BLOOD_TEST_SAMPLING, EXM_CBC_SAMPLING, EXM_SEROLOGY_TESTING_SAMPLING, EXM_PCR_SAMPLING, EXM_RT_PCR_SAMPLING, EXM_ELISA_SAMPLING, EXM_URINE_SAMPLE_ANALYSIS_SAMPLING, EXM_STOOL_ANALYSIS_SAMPLING, EXM_FECAL_ELASTASE_TEST_SAMPLING</Examinations>
+  </NurseExams>
   <UiHighlights>
     <!-- Hovering a possible diagnosis highlights the available examinations that can reveal one of its hidden symptoms. Default: true. -->
     <ExamsOnDiagnosisHover>true</ExamsOnDiagnosisHover>

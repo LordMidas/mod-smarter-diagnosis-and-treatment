@@ -84,7 +84,7 @@ Joinable items: advice (PRESCRIPTION) with advice, medication (RECEIPT) with med
 | `ProcedureScriptTreatmentReceipt.UpdateStateDoctorUsingPrinter` (private) | `ProcedureScriptTreatmentReceipt_UpdateStateDoctorUsingPrinter` | Hand-over across the desk (own toggle), outpatients. Prefix: when the doctor stands next to their own work chair, desk or receipt equipment and the patient is right behind it on the far side (straight across or one tile to the side along it, no walls; `TreatmentBundling.TryGetAcrossDesk`), the doctor turns across it, plays `stand_doc_give_receipt` and goes to `DOCTOR_GIVING_RECEIPT`, skipping the walk to the patient. Otherwise vanilla |
 
 ## Exam bundling (`ExamBundling.cs`)
-Joinable exams belong to the same sampling group (blood draw, or urine/stool), data-driven and memoized.
+Joinable exams belong to the same sampling group (blood draw, or urine/stool), data-driven and memoized. The performer is the doctor, or the nurse of a nurse exam script (see Nurse bedside exams); a nurse session only joins exams `NurseExams.Applies` to that map to the same nurse script, and its skill and skill points use `NurseExams.NurseQualifications`. The nurse scripts call `ContinueBloodDraw` / `SampleAllButLast` themselves at the same points as the patches below.
 
 | Vanilla method | Mod class | What the mod does |
 |---|---|---|
@@ -115,6 +115,14 @@ Outpatients only, stateless. `KeepUndressed.IsKeeping`: outpatient not at `GetTr
 | `CharacterPanelController.OnDepartmentSelected` | `CharacterPanelController_OnDepartmentSelected` | Prefix (`[HarmonyAfter("Loupito75:HospitalCareLevelTransfer")]`, `Priority.Last`, honours `__runOriginal`): for an ICU patient runs `TryStepDown` and the vanilla exam refresh, or plays the forbidden sound with a floating reason. Always skips vanilla for ICU patients |
 | `CharacterPanelController.Update` | `CharacterPanelController_Update` | Postfix: for an ICU patient, replaces the tooltip of the big department button only (block reason, min-stay hours, or ready). Never touches the small button |
 
+## Nurse bedside exams (`NurseExams.cs`, `NurseExamScripts/`)
+Listed exams of a hospitalized, living patient are reserved with a memoized copy of the exam's procedure: no doctor qualifications, `RequiredNurseQualifications = SKILL_NURSE_QUALIF_PATIENT_CARE`, `StaffSelectionRules.DEFAULT_ROOMS` (vanilla's scene factory then picks a free `EMPL_ROLE_PATIENT_CARE` nurse at the department's nurses' station) and `ProcedureScript` = the matching `Lmsdt*` nurse script. The copy is only used for the reservation (`m_procedure` stays unset), so the running script's `GetProcedure()` is the vanilla exam procedure. The nurse scripts are ports of `ProcedureScriptExaminationGeneral`, `…GeneralEquipment` and `…UrineAnalysis`: nurse as performer, no doctor-only branches (ambiguous-diagnosis consultation, workplace chair), nurse skill, `NURSE_FINISHED_PROCEDURE`. **Re-diff them against the vanilla scripts after game updates.** The game instantiates them through `HospitalMod.sm_modTypes` (keyed by type name, hence the `Lmsdt` prefix).
+
+| Vanilla method | Mod class | What the mod does |
+|---|---|---|
+| `ProcedureComponent.ReserveExamination` | `ProcedureComponent_ReserveExamination` | Prefix: for `NurseExams.Applies`, calls vanilla `ReserveProcedure` with the nurse copy and sets `m_examination`. `AVAILABLE` → done. `STAFF_UNAVAILABLE` (no qualified nurse at all) → vanilla doctor path. Busy → waits (vanilla `WAITING_FOR_STAFF_EXM`) with `WaitForNurse`, else vanilla doctor path |
+| `LopitalEntityFactory.InstantiateProcedureScript(string, ProcedureScriptPersistentData)` | `LopitalEntityFactory_InstantiateProcedureScript` | Prefix: a saved script name that is not a vanilla type but is in `HospitalMod.sm_modTypes` is created from there (mirrors the vanilla body), so saves with a reserved or running nurse exam load. Always patched |
+
 ## Config toggles
 
 Settings in `ModSmarterDiagnosisAndTreatment.Config.xml` (registry in `ModConfig.cs`) that switch patches off. "Prepare" means the patch class is not applied at all.
@@ -138,7 +146,8 @@ Settings in `ModSmarterDiagnosisAndTreatment.Config.xml` (registry in `ModConfig
 | `ExamBundling/BloodDraw`, `/WasteSamples` | Prepare: the blood-draw class and the two urine/stool classes of `ExamBundling.cs`; `CanJoin` also checks the group's toggle |
 | `ExamBundling/KeepUndressed` | Prepare: the eight classes of `KeepUndressed.cs` |
 | `IcuStepDown/Enabled` | Prepare: the three `CharacterPanelController_*` classes, and with `AutomaticForAiPatients` also `HospitalizationComponent_SelectNextStep` / `_SwitchState` |
+| `NurseExams/Enabled` | Prepare: `ProcedureComponent_ReserveExamination`; `NurseExams.Applies` also checks it. `WaitForNurse` and `Examinations` are read by that Prefix and `NurseExams` |
 | `UiHighlights/*` | Early return in each highlight class's track/apply entry points (not in `Restore*`). The `HighlightPatches.cs` classes stay patched, since they also set `PatientPanelContext` for the tooltips |
 | `Tooltips/*` | Prepare: `TooltipExamination_UpdateData`, and the `TooltipDiagnosis` / `TooltipSymptom` patches |
 
-Always patched (vanilla fixes): the lab-room part of `BehaviorPatient_SelectNextProcedure`, both classes in `DoctorCallsPatient.cs`, `Behavior_GetInteractionPosition`.
+Always patched (vanilla fixes): the lab-room part of `BehaviorPatient_SelectNextProcedure`, both classes in `DoctorCallsPatient.cs`, `Behavior_GetInteractionPosition`. Also always patched: `LopitalEntityFactory_InstantiateProcedureScript`, so saves with nurse exams load with the feature off.
