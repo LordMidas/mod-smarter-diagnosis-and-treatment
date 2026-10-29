@@ -1,0 +1,95 @@
+<Database>
+    <GameDBRoomType ID="ROOM_TYPE_INPATIENT_WARD"><!-- exept Emergency, ICU, Radiology -->
+        <AbbreviationLocID>ROOM_TYPE_INPATIENT_WARD_DESCRIPTION</AbbreviationLocID>
+        <TextureID>370</TextureID>
+        <IconIndex>836</IconIndex>
+        <AccessRights>PATIENT</AccessRights>
+
+        <RequiredEquipment>
+            <GameDBRequiredEquipment>    <Tag>ui_beds</Tag>        				<MinCount>1</MinCount>  </GameDBRequiredEquipment>
+            <GameDBRequiredEquipment>    <Tag>ui_night_stand</Tag>         		<MinCount>1</MinCount>  </GameDBRequiredEquipment>
+            <GameDBRequiredEquipment>    <Tag>ui_defibrillator</Tag>       		<MinCount>1</MinCount>   </GameDBRequiredEquipment>
+            <GameDBRequiredEquipment>    <Tag>ui_bedsocket</Tag>       			<MinCount>0</MinCount>   </GameDBRequiredEquipment>
+            <!-- LMSDT: Require the equipment for examinations -->
+            <GameDBRequiredEquipment>    <Tag>ui_cabinets_equipment</Tag>       <MinCount>1</MinCount>    </GameDBRequiredEquipment>    
+            <GameDBRequiredEquipment>    <Tag>ui_crp_scan</Tag>                     <MinCount>1</MinCount>    </GameDBRequiredEquipment>            
+            <GameDBRequiredEquipment>    <Tag>ui_clean_hands</Tag>                  <MinCount>1</MinCount>    </GameDBRequiredEquipment>
+        </RequiredEquipment>
+
+        <LockedByDefault>false</LockedByDefault>
+
+       <BuildingModeFilters>
+        	<Tag>ui_cabinets</Tag>
+        	<Tag>ui_chair_def</Tag>
+        	<Tag>ui_sofa</Tag>
+        	<Tag>ui_tv</Tag>
+        	<Tag>ui_privacy_screens</Tag>
+        	<Tag>ui_bookcase</Tag>
+        </BuildingModeFilters>
+
+        <Tags>
+            <Tag>patient_lunch</Tag>
+            <Tag>patient_medicine</Tag>
+            <Tag>night_stand</Tag>
+            <Tag>hospitalization</Tag>
+            <Tag>hospitalization_normal</Tag> <!-- for showing patient counts in low/high in management -->
+            <Tag>ward</Tag>
+            <Tag>receipt</Tag>
+            <!-- LMSDT: Allow basic exams to take place in ward -->
+            <Tag>examinations_no_equipment</Tag>
+            <Tag>examinations_basic_equipment</Tag>
+        </Tags>
+
+        <MinWidth>4</MinWidth>
+        <MinHeight>3</MinHeight>
+    </GameDBRoomType>
+
+    <GameDBRoomType ID="ROOM_TYPE_HIGH_PRIORITY_INPATIENT_WARD"><!-- except Emergency, ICU, Cardiology -->
+        <AbbreviationLocID>ROOM_TYPE_HIGH_PRIORITY_INPATIENT_WARD_DESCRIPTION</AbbreviationLocID>
+        <TextureID>371</TextureID>
+        <IconIndex>838</IconIndex>
+        <AccessRights>PATIENT</AccessRights>
+
+        <RequiredEquipment>
+            <GameDBRequiredEquipment>    <Tag>ui_beds</Tag>                     <MinCount>1</MinCount>  </GameDBRequiredEquipment>
+            <GameDBRequiredEquipment>    <Tag>ui_life_monitor</Tag>             <MinCount>1</MinCount>  </GameDBRequiredEquipment>
+            <GameDBRequiredEquipment>    <Tag>ui_night_stand</Tag>              <MinCount>1</MinCount>  </GameDBRequiredEquipment>
+            <GameDBRequiredEquipment>    <Tag>ui_defibrillator</Tag>            <MinCount>1</MinCount>   </GameDBRequiredEquipment>
+            <GameDBRequiredEquipment>    <Tag>ui_bedsocket</Tag>                <MinCount>0</MinCount>   </GameDBRequiredEquipment>
+            <!-- LMSDT: Require the equipment for examinations -->            
+            <GameDBRequiredEquipment>    <Tag>ui_cabinets_equipment</Tag>       <MinCount>1</MinCount>    </GameDBRequiredEquipment>
+            <GameDBRequiredEquipment>    <Tag>ui_crp_scan</Tag>                     <MinCount>1</MinCount>    </GameDBRequiredEquipment>            
+            <GameDBRequiredEquipment>    <Tag>ui_clean_hands</Tag>                  <MinCount>1</MinCount>    </GameDBRequiredEquipment>
+        </RequiredEquipment>
+
+        <LockedByDefault>false</LockedByDefault>
+
+        <BuildingModeFilters>
+            <Tag>ui_cabinets</Tag>
+            <Tag>ui_chair_def</Tag>
+            <Tag>ui_sofa</Tag>
+            <Tag>ui_tv</Tag>
+            <Tag>ui_mobile_cabinet</Tag>
+            <Tag>ui_privacy_screens</Tag>
+            <Tag>ui_oxygen_tank</Tag>
+            <Tag>ui_bookcase</Tag>
+        </BuildingModeFilters>
+
+        <Tags>
+            <Tag>patient_lunch</Tag>
+            <Tag>patient_medicine</Tag>
+            <Tag>life_monitor</Tag>
+            <Tag>night_stand</Tag>
+            <Tag>hospitalization</Tag>
+            <Tag>hospitalization_high</Tag> <!-- for showing patient counts in low/high in management -->
+            <Tag>ward</Tag>
+            <Tag>receipt</Tag>
+            <!-- LMSDT: Allow basic exams to take place in ward -->
+            <Tag>examinations_no_equipment</Tag>
+            <Tag>examinations_basic_equipment</Tag>
+        </Tags>
+
+        <MinWidth>4</MinWidth>
+        <MinHeight>3</MinHeight>
+    </GameDBRoomType>
+</Database>
