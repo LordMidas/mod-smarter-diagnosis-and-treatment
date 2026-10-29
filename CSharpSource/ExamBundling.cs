@@ -99,6 +99,27 @@ namespace ModSmarterDiagnosisAndTreatment
             return a != null && b != null && a.AnimationNameIdle == b.AnimationNameIdle && a.AnimationNameOut == b.AnimationNameOut;
         }
 
+        // A sample nobody here can test (its lab closed, or no analyzer or lab specialist) is not taken in the session:
+        // vanilla's availability of a sampling exam is its testing exam's, and the joining exam skips that check. Another
+        // mod may also keep such an exam planned for its own handling (ModImmersiveEconomy's external exams).
+        private static bool CanBeTested(Entity patientEntity, GameDBExamination examination)
+        {
+            GameDBExamination testing = examination.LabTestingExaminationRef == null ? null : examination.LabTestingExaminationRef.Entry;
+            if (testing == null || testing.Procedure.RequiredRoomTags == null || testing.Procedure.RequiredRoomTags.Length == 0)
+                return true;
+
+            BehaviorPatient patient = patientEntity.GetComponent<BehaviorPatient>();
+            Department department = examination.Procedure.DetachedDepartmentRef != null
+                ? MapScriptInterface.Instance.GetDepartmentOfType(examination.Procedure.DetachedDepartmentRef.Entry)
+                : patient == null ? null : patient.m_state.m_department.GetEntity();
+            if (department == null)
+                return false;
+
+            ProcedureScene scene = ProcedureSceneFactory.CreateProcedureScene(testing.Procedure, patientEntity, department, null,
+                AccessRights.PATIENT_PROCEDURE, ProcedureSceneType.QUERY, EquipmentListRules.ANY);
+            return ProcedureScene.IsProcedureAvailable(scene.m_availability);
+        }
+
         /// <summary>Whether the examination can join the session the script is running now.</summary>
         public static bool CanJoin(ProcedureScript script, GameDBExamination examination)
         {
@@ -135,6 +156,9 @@ namespace ModSmarterDiagnosisAndTreatment
 
             GameDBProcedure currentProcedure = current.Procedure;
             if (procedure.TopProcedure != currentProcedure.TopProcedure || procedure.BottomProcedure != currentProcedure.BottomProcedure)
+                return false;
+
+            if (!CanBeTested(patientEntity, examination))
                 return false;
 
             // The blood draw keeps its idle loop and ends with the last exam's out animation, so they must match.
