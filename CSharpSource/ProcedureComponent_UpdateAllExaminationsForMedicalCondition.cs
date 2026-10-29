@@ -118,8 +118,6 @@ namespace ModSmarterDiagnosisAndTreatment
 
             HashSet<GameDBExamination> hiddenSymptomExaminationSet =
                 new HashSet<GameDBExamination>();
-            List<GameDBExamination> examinationsForHiddenSymptoms =
-                new List<GameDBExamination>();
             foreach (GameDBSymptom symptom in potentialSymptoms)
             {
                 if (medicalCondition.HasVisibleSymptom(symptom) || symptom.Examinations == null)
@@ -131,10 +129,7 @@ namespace ModSmarterDiagnosisAndTreatment
                     if (examination == null)
                         continue;
 
-                    GameDBExamination samplingExamination =
-                        ExaminationEquivalence.ToSampling(examination);
-                    if (hiddenSymptomExaminationSet.Add(samplingExamination))
-                        examinationsForHiddenSymptoms.Add(samplingExamination);
+                    hiddenSymptomExaminationSet.Add(ExaminationEquivalence.ToSampling(examination));
                 }
             }
 
@@ -161,13 +156,6 @@ namespace ModSmarterDiagnosisAndTreatment
                 if (hiddenSymptomExaminationSet.Contains(samplingExamination) &&
                     IsNotAlreadyQueued(__instance, samplingExamination, diagnosed))
                     AddIfMissing(filteredExaminations, filteredSet, samplingExamination);
-            }
-
-            foreach (GameDBExamination examination in examinationsForHiddenSymptoms)
-            {
-                if (examination.LabTestingExaminationRef != null &&
-                    IsNotAlreadyQueued(__instance, examination, diagnosed))
-                    AddIfMissing(filteredExaminations, filteredSet, examination);
             }
 
             return filteredExaminations;
