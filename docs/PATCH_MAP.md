@@ -32,7 +32,7 @@ Every Harmony patch in this mod, grouped by feature: the vanilla method, the mod
 
 | Vanilla method | Mod class | What the mod does |
 |---|---|---|
-| `BehaviorPatient.SelectNextProcedure` (private) | `BehaviorPatient_SelectNextProcedure` | First the lab-room vanilla fix (always on): a non-hospitalized patient in `GoingToDoctor` with `m_labSpecialist` set and a planned exam only gets `TryToStartScheduledExamination`. Then, with `ClinicEnabled`: AI clinic patients plan and start treatments for collapse-risk symptoms before any exam or transfer, and hold in the waiting room (about 1 h) instead of leaving untreated |
+| `BehaviorPatient.SelectNextProcedure` (private) | `BehaviorPatient_SelectNextProcedure` | First the outpatient wrong-diagnosis correction (see that section). Then the lab-room vanilla fix (always on): a non-hospitalized patient in `GoingToDoctor` with `m_labSpecialist` set and a planned exam only gets `TryToStartScheduledExamination`. Then, with `ClinicEnabled`: AI clinic patients plan and start treatments for collapse-risk symptoms before any exam or transfer, and hold in the waiting room (about 1 h) instead of leaving untreated |
 | `HospitalizationComponent.TryToStartScheduledTreatment` | `HospitalizationComponent_TryToStartScheduledTreatment` | First `TreatmentBundling.GroupHospitalQueue`. Then AI hospitalized: collapse-risk treatments go ahead of a queued surgery; cancels a surgery reservation and hides surgeries from the skip rule (Prefix `out __state` + Finalizer re-inserts them), for up to 2 h |
 | `HospitalizationComponent.UpdateStateBeingTreated` (private) | `HospitalizationComponent_UpdateStateBeingTreated` | AI patient in surgery: resolves a pending collapse with the survival roll (anesthesiologist bonus, no collapse script) and gives collapse-risk treatments instantly |
 | `ProcedureComponent.PlanAllTreatments` | `ProcedureComponent_PlanAllTreatments` | Postfix: AI doctors also plan one non-surgery, non-escalating treatment for each untreated visible symptom at or above the department's treatment threshold. Independent of `CriticalTreatments` |
@@ -61,8 +61,8 @@ Vanilla only notifies (`NOTIF_WRONG_DIAGNOSIS` popup, mood, statistics) when the
 
 | Vanilla method | Mod class | What the mod does |
 |---|---|---|
-| `BehaviorPatient.SelectNextProcedure` (private) | `BehaviorPatient_SelectNextProcedure_WrongDiagnosis` | Prefix (`Priority.First`, before the critical-treatment Prefix), outpatients: `TryCorrect` when `NeedsCorrection`. Vanilla then diagnoses again or schedules an exam |
-| `HospitalizationComponent.SelectNextStep` (private) | `HospitalizationComponent_SelectNextStep_WrongDiagnosis` | Prefix (`Priority.First`, before the ICU step-down Prefix), hospitalized patients: the same. Vanilla's `TryToDiagnose` / `TryToScheduleExamination` take over |
+| `BehaviorPatient.SelectNextProcedure` (private) | `BehaviorPatient_SelectNextProcedure` (shared with critical treatment) | First step of the Prefix, outpatients: `WrongDiagnosis.CorrectIfNeeded` (`AutoCorrect` and `NeedsCorrection`, then `TryCorrect`). Vanilla then diagnoses again or schedules an exam |
+| `HospitalizationComponent.SelectNextStep` (private) | `HospitalizationComponent_SelectNextStep` (shared with ICU step-down) | First step of the Prefix, hospitalized patients: the same. Vanilla's `TryToDiagnose` / `TryToScheduleExamination` take over |
 
 ## Treatment threshold UI (`TreatmentThresholdUi.cs`)
 
@@ -120,7 +120,7 @@ Outpatients only, stateless. `KeepUndressed.IsKeeping`: outpatient not at `GetTr
 | Vanilla method | Mod class | What the mod does |
 |---|---|---|
 | `HospitalizationComponent.SwitchState` | `HospitalizationComponent_SwitchState` | Prefix (`out __state` = old state) + Postfix: a finished nurse check-up on an AI ICU patient calls `IcuStepDown.MarkCleared` when `GetBlockReason(patient, false)` is null, else `ClearMark` (the newest check-up counts). Never transfers here. Shared hook with Hospital Care Level Transfer, which excludes the ICU |
-| `HospitalizationComponent.SelectNextStep` (private) | `HospitalizationComponent_SelectNextStep` | Prefix, AI ICU patients marked cleared with the assigned doctor on shift. Not cleared: vanilla. `GetBlockReason(patient, false)` set: drop the mark, vanilla. `GetBlockReason(patient, true)` set (busy) or doctor off shift: keep the mark, vanilla. Otherwise `TryStepDown`: on success drop the mark, `__result = true`, skip vanilla; on failure (no bed or stretcher) keep the mark and retry later |
+| `HospitalizationComponent.SelectNextStep` (private) | `HospitalizationComponent_SelectNextStep` | Prefix, after the wrong-diagnosis step; AI ICU patients marked cleared with the assigned doctor on shift. Not cleared: vanilla. `GetBlockReason(patient, false)` set: drop the mark, vanilla. `GetBlockReason(patient, true)` set (busy) or doctor off shift: keep the mark, vanilla. Otherwise `TryStepDown`: on success drop the mark, `__result = true`, skip vanilla; on failure (no bed or stretcher) keep the mark and retry later |
 | `CharacterPanelController.IsAbleToChangeDepartments` | `CharacterPanelController_IsAbleToChangeDepartments` | Postfix: an ICU patient with no block reason may change department, so the selector opens. Every other vanilla blocker stays |
 | `CharacterPanelController.OnDepartmentSelected` | `CharacterPanelController_OnDepartmentSelected` | Prefix (`[HarmonyAfter("Loupito75:HospitalCareLevelTransfer")]`, `Priority.Last`, honours `__runOriginal`): for an ICU patient runs `TryStepDown` and the vanilla exam refresh, or plays the forbidden sound with a floating reason. Always skips vanilla for ICU patients |
 | `CharacterPanelController.Update` | `CharacterPanelController_Update` | Postfix: for an ICU patient, replaces the tooltip of the big department button only (block reason, min-stay hours, or ready). Never touches the small button |
@@ -128,9 +128,11 @@ Outpatients only, stateless. `KeepUndressed.IsKeeping`: outpatient not at `GetTr
 ## Nurse bedside exams (`NurseExams.cs`, `NurseExamScripts/`)
 Listed exams of a hospitalized, living patient are reserved with a memoized copy of the exam's procedure: no doctor qualifications, `RequiredNurseQualifications = SKILL_NURSE_QUALIF_PATIENT_CARE`, `StaffSelectionRules.DEFAULT_ROOMS` (vanilla's scene factory then picks a free `EMPL_ROLE_PATIENT_CARE` nurse at the department's nurses' station) and `ProcedureScript` = the matching `Lmsdt*` nurse script. The copy is only used for the reservation (`m_procedure` stays unset), so the running script's `GetProcedure()` is the vanilla exam procedure. The nurse scripts are ports of `ProcedureScriptExaminationGeneral`, `…GeneralEquipment` and `…UrineAnalysis`: nurse as performer, no doctor-only branches (ambiguous-diagnosis consultation, workplace chair), nurse skill, `NURSE_FINISHED_PROCEDURE`. **Re-diff them against the vanilla scripts after game updates.** The game instantiates them through `HospitalMod.sm_modTypes` (keyed by type name, hence the `Lmsdt` prefix).
 
+**Ward room types** (`Database/ModRoomTypes.xml`, full override of `ROOM_TYPE_INPATIENT_WARD` and `ROOM_TYPE_HIGH_PRIORITY_INPATIENT_WARD`): adds the `examinations_no_equipment` / `examinations_basic_equipment` tags, so basic exams take place in the ward instead of the patient going to the diagnostic unit, and requires the equipment they use there (cabinet, CRP scanner, hand sanitizer). Independent of `NurseExams/Enabled`: doctors use the ward too.
+
 | Vanilla method | Mod class | What the mod does |
 |---|---|---|
-| `ProcedureComponent.ReserveExamination` | `ProcedureComponent_ReserveExamination` | Prefix: for `NurseExams.Applies`, calls vanilla `ReserveProcedure` with the nurse copy and sets `m_examination`. `AVAILABLE` → done. `STAFF_UNAVAILABLE` (no qualified nurse at all) → vanilla doctor path. Busy → waits (vanilla `WAITING_FOR_STAFF_EXM`) with `WaitForNurse`, else vanilla doctor path |
+| `ProcedureComponent.ReserveExamination` | `ProcedureComponent_ReserveExamination` | Prefix: for `NurseExams.Applies`, calls vanilla `ReserveProcedure` with the nurse copy and sets `m_examination`. `AVAILABLE` → done. Exactly `STAFF_BUSY` with `WaitForNurse` → waits (vanilla `WAITING_FOR_STAFF_EXM`). Anything else (no qualified nurse, room or equipment the nurse scene cannot get, or `WaitForNurse` off) → vanilla doctor path |
 | `LopitalEntityFactory.InstantiateProcedureScript(string, ProcedureScriptPersistentData)` | `LopitalEntityFactory_InstantiateProcedureScript` | Prefix: a saved script name that is not a vanilla type but is in `HospitalMod.sm_modTypes` is created from there (mirrors the vanilla body), so saves with a reserved or running nurse exam load. Always patched |
 
 ## Config toggles
@@ -145,7 +147,7 @@ Settings in `ModSmarterDiagnosisAndTreatment.Config.xml` (registry in `ModConfig
 | `ExaminationList/SortEnabled` | Early return in the `UpdateAll...` Postfix only. Its Prefix/Finalizer always run because they set `UpdatingComponent` for the filter |
 | `NpcExamChoice/Enabled` | Prepare: `ProcedureComponent_SelectExaminationForMedicalCondition`. `DeferLowPriorityExamsInEr` gates its ER block |
 | `NpcExamChoice/InformationGain` | Read by `ExaminationInformation.GetUsefulness` (NPC choice and list sort): off = relevance score |
-| `WrongDiagnosis/AutoCorrect` | Prepare: `BehaviorPatient_SelectNextProcedure_WrongDiagnosis`, `HospitalizationComponent_SelectNextStep_WrongDiagnosis` |
+| `WrongDiagnosis/AutoCorrect` | Checked in `WrongDiagnosis.CorrectIfNeeded`, the first step of `BehaviorPatient_SelectNextProcedure` and `HospitalizationComponent_SelectNextStep`; also part of the latter's Prepare |
 | `CriticalTreatment/ClinicEnabled` | Early return in `BehaviorPatient_SelectNextProcedure.Prefix` after the lab-room fix (the class is always patched) |
 | `CriticalTreatment/HospitalEnabled` | Return in `HospitalizationComponent_TryToStartScheduledTreatment.Prefix` right after `GroupHospitalQueue`, so bundling still runs |
 | `CriticalTreatment/InSurgeryEnabled` | Prepare: `HospitalizationComponent_UpdateStateBeingTreated` |
@@ -157,7 +159,7 @@ Settings in `ModSmarterDiagnosisAndTreatment.Config.xml` (registry in `ModConfig
 | `TreatmentBundling/HandOverAcrossDesk` | Prepare: `ProcedureScriptTreatmentReceipt_UpdateStateDoctorUsingPrinter` (independent of `Enabled`) |
 | `ExamBundling/BloodDraw`, `/WasteSamples` | Prepare: the blood-draw class and the two urine/stool classes of `ExamBundling.cs`; `CanJoin` also checks the group's toggle |
 | `ExamBundling/KeepUndressed` | Prepare: the eight classes of `KeepUndressed.cs` |
-| `IcuStepDown/Enabled` | Prepare: the three `CharacterPanelController_*` classes, and with `AutomaticForAiPatients` also `HospitalizationComponent_SelectNextStep` / `_SwitchState` |
+| `IcuStepDown/Enabled` | Prepare: the three `CharacterPanelController_*` classes, and with `AutomaticForAiPatients` also `HospitalizationComponent_SwitchState`. `HospitalizationComponent_SelectNextStep` is patched when that or `WrongDiagnosis/AutoCorrect` is on, and gates its ICU part inside |
 | `NurseExams/Enabled` | Prepare: `ProcedureComponent_ReserveExamination`; `NurseExams.Applies` also checks it. `WaitForNurse` and `Examinations` are read by that Prefix and `NurseExams` |
 | `UiHighlights/*` | Early return in each highlight class's track/apply entry points (not in `Restore*`). The `HighlightPatches.cs` classes stay patched, since they also set `PatientPanelContext` for the tooltips |
 | `Tooltips/*` | Prepare: `TooltipExamination_UpdateData`, and the `TooltipDiagnosis` / `TooltipSymptom` patches |
