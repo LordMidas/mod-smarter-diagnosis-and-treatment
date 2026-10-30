@@ -56,6 +56,14 @@ The lab-room part of `BehaviorPatient_SelectNextProcedure` is in the critical tr
 | `BehaviorPatient.UpdateStateGoingToDoctor` (private) | `BehaviorPatient_UpdateStateGoingToDoctor` (`DoctorCallsPatient.cs`) | Companion: a patient who reached the office (no lab specialist) waits while the assigned doctor is `Idle`, still walking and has this patient as `CurrentPatient`. Capped at 0.25 in-game hours of `m_timeInState` |
 | `Behavior.GetInteractionPosition` | `Behavior_GetInteractionPosition` (`InteractionPosition.cs`) | Postfix: when the chosen stand tile is the use tile of an adjacent `receipt` object (paper holder, printer), takes the next free chair neighbour with vanilla's conditions instead. Keeps the vanilla result if no other tile qualifies |
 
+## Wrong-diagnosis correction (`WrongDiagnosis.cs`)
+Vanilla only notifies (`NOTIF_WRONG_DIAGNOSIS` popup, mood, statistics) when the final diagnosis drops out of the possible diagnoses (`MedicalCondition.UpdatePossibleDiagnoses`). Stateless: `NeedsCorrection` = AI patient, diagnosis set, vanilla's saved `m_wrongDiagnosisDiscovered`, and no open popup for this patient in `NotificationManager.m_popups` (popups pause the game and are not saved, so after a load or with the notification set to log/off it acts at once). The card button that removes the final diagnosis clears both, so a player fix is left alone. `TryCorrect` removes the planned treatments of the wrong diagnosis that no visible symptom lists (and a planned hospitalization only those needed), cancels a reservation of one of them (waits while a hospitalized patient is `m_oustideRoom`), calls vanilla `UpdateWrongDiagnosis` (adds to `m_wrongDiagnoses`, which the scoring excludes), clears the flag and, in hospital, `m_preemptiveExaminatioPlanned`.
+
+| Vanilla method | Mod class | What the mod does |
+|---|---|---|
+| `BehaviorPatient.SelectNextProcedure` (private) | `BehaviorPatient_SelectNextProcedure_WrongDiagnosis` | Prefix (`Priority.First`, before the critical-treatment Prefix), outpatients: `TryCorrect` when `NeedsCorrection`. Vanilla then diagnoses again or schedules an exam |
+| `HospitalizationComponent.SelectNextStep` (private) | `HospitalizationComponent_SelectNextStep_WrongDiagnosis` | Prefix (`Priority.First`, before the ICU step-down Prefix), hospitalized patients: the same. Vanilla's `TryToDiagnose` / `TryToScheduleExamination` take over |
+
 ## Treatment threshold UI (`TreatmentThresholdUi.cs`)
 
 | Vanilla method | Mod class | What the mod does |
@@ -137,6 +145,7 @@ Settings in `ModSmarterDiagnosisAndTreatment.Config.xml` (registry in `ModConfig
 | `ExaminationList/SortEnabled` | Early return in the `UpdateAll...` Postfix only. Its Prefix/Finalizer always run because they set `UpdatingComponent` for the filter |
 | `NpcExamChoice/Enabled` | Prepare: `ProcedureComponent_SelectExaminationForMedicalCondition`. `DeferLowPriorityExamsInEr` gates its ER block |
 | `NpcExamChoice/InformationGain` | Read by `ExaminationInformation.GetUsefulness` (NPC choice and list sort): off = relevance score |
+| `WrongDiagnosis/AutoCorrect` | Prepare: `BehaviorPatient_SelectNextProcedure_WrongDiagnosis`, `HospitalizationComponent_SelectNextStep_WrongDiagnosis` |
 | `CriticalTreatment/ClinicEnabled` | Early return in `BehaviorPatient_SelectNextProcedure.Prefix` after the lab-room fix (the class is always patched) |
 | `CriticalTreatment/HospitalEnabled` | Return in `HospitalizationComponent_TryToStartScheduledTreatment.Prefix` right after `GroupHospitalQueue`, so bundling still runs |
 | `CriticalTreatment/InSurgeryEnabled` | Prepare: `HospitalizationComponent_UpdateStateBeingTreated` |

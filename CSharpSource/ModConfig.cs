@@ -175,6 +175,9 @@ namespace ModSmarterDiagnosisAndTreatment
         private static readonly Setting DeferLowPriorityExamsInEr = Add("NpcExamChoice", "DeferLowPriorityExamsInEr", true,
             "In the Emergency department, vanilla sends a patient to observation as soon as the doctor picks an exam with priority 30 or lower. With this on, NPC doctors skip those exams while a higher-priority useful exam is available, so patients are not sent to observation too early.");
 
+        private static readonly Setting WrongDiagnosisAutoCorrect = Add("WrongDiagnosis", "AutoCorrect", true,
+            "When the game finds that an AI patient's diagnosis was wrong, the doctor drops it together with the planned treatments only that diagnosis called for (including a reserved surgery) and goes on examining. It happens once you close the wrong-diagnosis popup, unless you corrected the diagnosis yourself first. In vanilla, the patient keeps the wrong diagnosis and its treatments until you remove it on the patient card.");
+
         private static readonly Setting ClinicEnabled = Add("CriticalTreatment", "ClinicEnabled", true,
             "Clinic patients with a symptom that risks a collapse get that symptom's treatment before any exam or transfer.");
         private static readonly Setting ClinicBlockedWaitHours = Add("CriticalTreatment", "ClinicBlockedWaitHours", 1f, 0f, 12f,
@@ -300,6 +303,11 @@ namespace ModSmarterDiagnosisAndTreatment
             public static float PriorityMultiplierStrength => ModConfig.PriorityMultiplierStrength.FloatValue;
             public static bool DeferLowPriorityExamsInEr => ModConfig.DeferLowPriorityExamsInEr.BoolValue;
             public static bool InformationGain => NpcExamsInformationGain.BoolValue;
+        }
+
+        public static class WrongDiagnosis
+        {
+            public static bool AutoCorrect => WrongDiagnosisAutoCorrect.BoolValue;
         }
 
         public static class Critical
