@@ -6,9 +6,10 @@ using Lopital;
 namespace ModSmarterDiagnosisAndTreatment
 {
     /// <summary>
-    /// Two jobs, in this order:
-    /// 1. Vanilla fix (always on): at a lab specialist's room only the planned exam starts, see <see cref="StartLabExamOnly"/>.
-    /// 2. Clinic patients (AI controlled) with a collapse-risk symptom get its treatment before any exam or transfer.
+    /// Three jobs, in this order:
+    /// 1. Outpatients: drop a discovered wrong diagnosis (WrongDiagnosis/AutoCorrect, see <see cref="WrongDiagnosis"/>).
+    /// 2. Vanilla fix (always on): at a lab specialist's room only the planned exam starts, see <see cref="StartLabExamOnly"/>.
+    /// 3. Clinic patients (AI controlled) with a collapse-risk symptom get its treatment before any exam or transfer.
     /// Vanilla only plans critical treatments at diagnosis, so a symptom revealed by an exam is otherwise ignored
     /// and the patient is transferred or sent away untreated.
     /// </summary>
@@ -23,11 +24,15 @@ namespace ModSmarterDiagnosisAndTreatment
         private static readonly Dictionary<uint, double> nextPlanTime = new Dictionary<uint, double>();
         private static readonly Dictionary<uint, double> blockedSince = new Dictionary<uint, double>();
 
-        // Always patched because of the lab-room fix; CriticalTreatment/ClinicEnabled gates the critical part in Prefix.
+        // Always patched because of the lab-room fix; WrongDiagnosis/AutoCorrect and CriticalTreatment/ClinicEnabled gate
+        // their parts in Prefix.
         private static bool Prepare() => true;
 
         public static bool Prefix(BehaviorPatient __instance)
         {
+            if (!__instance.m_entity.GetComponent<HospitalizationComponent>().IsHospitalized())
+                WrongDiagnosis.CorrectIfNeeded(__instance);
+
             if (StartLabExamOnly(__instance))
                 return false;
 

@@ -50,8 +50,9 @@ namespace ModSmarterDiagnosisAndTreatment
 
             // With information gain, a relevant exam scores 0 when no result could change the candidates. If no exam
             // can, relevance decides, so the doctor still examines instead of falling back to vanilla's pick.
+            ExaminationInformation.CacheEntry information = ExaminationInformation.Prepare(__instance, medicalCondition);
             bool useInformation = ModConfig.NpcExams.InformationGain &&
-                                  HasInformativeExam(__instance, medicalCondition, availability);
+                                  HasInformativeExam(__instance, information, medicalCondition, availability);
 
             foreach (GameDBExamination examination in availability.m_keys)
             {
@@ -61,7 +62,7 @@ namespace ModSmarterDiagnosisAndTreatment
                 }
 
                 float score = useInformation
-                    ? ExaminationInformation.GetUsefulness(__instance, medicalCondition, examination)
+                    ? ExaminationInformation.GetUsefulness(information, medicalCondition, examination)
                     : ExaminationRelevance.GetRelevanceScore(examination, medicalCondition);
                 if (score <= 0f)
                     continue;
@@ -139,13 +140,14 @@ namespace ModSmarterDiagnosisAndTreatment
 
         private static bool HasInformativeExam(
             ProcedureComponent procedureComponent,
+            ExaminationInformation.CacheEntry information,
             MedicalCondition medicalCondition,
             FakeMap<GameDBExamination, ProcedureSceneAvailability> availability)
         {
             foreach (GameDBExamination examination in availability.m_keys)
             {
                 if (IsSelectable(examination, availability[examination], procedureComponent.m_state.m_procedureQueue) &&
-                    ExaminationInformation.GetUsefulness(procedureComponent, medicalCondition, examination) > 0f)
+                    ExaminationInformation.GetUsefulness(information, medicalCondition, examination) > 0f)
                 {
                     return true;
                 }

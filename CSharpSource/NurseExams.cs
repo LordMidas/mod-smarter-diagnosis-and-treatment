@@ -120,7 +120,7 @@ namespace ModSmarterDiagnosisAndTreatment
 
     /// <summary>
     /// A listed exam of a hospitalized patient is reserved with a nurses' station nurse. The doctor does it instead
-    /// when the department has no such nurse at all, or, with WaitForNurse off, when none is free now.
+    /// unless the only problem is that every such nurse is busy and WaitForNurse is on.
     /// </summary>
     [HarmonyPatch(typeof(ProcedureComponent), nameof(ProcedureComponent.ReserveExamination))]
     public static class ProcedureComponent_ReserveExamination
@@ -153,7 +153,9 @@ namespace ModSmarterDiagnosisAndTreatment
                 return false;
             }
 
-            if ((availability & ProcedureSceneAvailability.STAFF_UNAVAILABLE) != 0 || !ModConfig.NurseExams.WaitForNurse)
+            // Only a busy nurse is waited for. No qualified nurse, or a room or equipment the nurse scene cannot get,
+            // goes to the doctor, whose own scene then decides.
+            if (availability != ProcedureSceneAvailability.STAFF_BUSY || !ModConfig.NurseExams.WaitForNurse)
                 return true;
 
             __result = availability;

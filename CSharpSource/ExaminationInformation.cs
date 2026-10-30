@@ -22,14 +22,15 @@ namespace ModSmarterDiagnosisAndTreatment
         private const double MinEntropyBits = 1e-3;
         private const int MaxCachedConditions = 16;
 
-        private sealed class CacheEntry
+        /// <summary>A patient's cached scoring state, from Prepare; only this class reads its fields.</summary>
+        public sealed class CacheEntry
         {
-            public long Signature;
-            public HashSet<GameDBExamination> FinishedExams;
-            public GameDBMedicalCondition[] Candidates;
-            public double[] Prior;
-            public double Entropy;
-            public readonly Dictionary<GameDBExamination, float> Scores = new Dictionary<GameDBExamination, float>();
+            internal long Signature;
+            internal HashSet<GameDBExamination> FinishedExams;
+            internal GameDBMedicalCondition[] Candidates;
+            internal double[] Prior;
+            internal double Entropy;
+            internal readonly Dictionary<GameDBExamination, float> Scores = new Dictionary<GameDBExamination, float>();
         }
 
         // The exam list is re-sorted every other frame while a patient card is open, so scores are kept until the
@@ -37,42 +38,45 @@ namespace ModSmarterDiagnosisAndTreatment
         private static readonly Dictionary<MedicalCondition, CacheEntry> cache = new Dictionary<MedicalCondition, CacheEntry>();
 
         /// <summary>
+        /// The patient's scoring state for a loop over many exams: pass it to the 4-argument GetUsefulness so the
+        /// cache signature is checked once. Null when the score falls back to relevance for every exam (InformationGain
+        /// off, or the diagnosis already settled: one candidate, nothing to narrow). Do not keep it past the loop.
+        /// </summary>
+        public static CacheEntry Prepare(ProcedureComponent component, MedicalCondition medicalCondition)
+        {
+            if (!ModConfig.NpcExams.InformationGain || component == null || medicalCondition == null ||
+                medicalCondition.m_possibleDiagnoses == null || medicalCondition.m_possibleDiagnoses.Count < 2)
+            {
+                return null;
+            }
+
+            CacheEntry entry = GetEntry(component, medicalCondition);
+            return entry.Entropy < MinEntropyBits ? null : entry;
+        }
+
+        /// <summary>
         /// Score for the NPC choice and the list sort. Falls back to the relevance score for Differential Diagnosis,
         /// with InformationGain off, and when the diagnosis is already settled (one candidate, nothing to narrow).
         /// </summary>
         public static float GetUsefulness(ProcedureComponent component, MedicalCondition medicalCondition, GameDBExamination examination)
         {
-            float score;
-            if (ModConfig.NpcExams.InformationGain &&
-                examination != ModDb.DifferentialDiagnosis &&
-                TryGetScore(component, medicalCondition, examination, out score))
-            {
-                return score;
-            }
-
-            return ExaminationRelevance.GetRelevanceScore(examination, medicalCondition);
+            return GetUsefulness(Prepare(component, medicalCondition), medicalCondition, examination);
         }
 
-        public static bool TryGetScore(ProcedureComponent component, MedicalCondition medicalCondition, GameDBExamination examination, out float score)
+        /// <summary>GetUsefulness with the state from Prepare for the same patient.</summary>
+        public static float GetUsefulness(CacheEntry entry, MedicalCondition medicalCondition, GameDBExamination examination)
         {
-            score = 0f;
-            if (component == null || medicalCondition == null || examination == null ||
-                medicalCondition.m_possibleDiagnoses == null || medicalCondition.m_possibleDiagnoses.Count < 2)
-            {
-                return false;
-            }
+            if (entry == null || examination == null || examination == ModDb.DifferentialDiagnosis)
+                return ExaminationRelevance.GetRelevanceScore(examination, medicalCondition);
 
-            CacheEntry entry = GetEntry(component, medicalCondition);
-            if (entry.Entropy < MinEntropyBits)
-                return false;
-
+            float score;
             if (!entry.Scores.TryGetValue(examination, out score))
             {
                 score = ComputeScore(entry, medicalCondition, examination);
                 entry.Scores[examination] = score;
             }
 
-            return true;
+            return score;
         }
 
         private static CacheEntry GetEntry(ProcedureComponent component, MedicalCondition medicalCondition)

@@ -39,11 +39,12 @@ namespace ModSmarterDiagnosisAndTreatment
             List<ProcedureSceneAvailability> statuses = availability.m_values;
 
             // Same usefulness as the NPC choice, with relevance breaking ties (e.g. exams that cannot narrow anything).
+            ExaminationInformation.CacheEntry information = ExaminationInformation.Prepare(__instance, medicalCondition);
             float[] scores = new float[examinations.Count];
             float[] relevance = new float[examinations.Count];
             for (int index = 0; index < scores.Length; index++)
             {
-                scores[index] = ExaminationInformation.GetUsefulness(__instance, medicalCondition, examinations[index]);
+                scores[index] = ExaminationInformation.GetUsefulness(information, medicalCondition, examinations[index]);
                 relevance[index] = ExaminationRelevance.GetRelevanceScore(examinations[index], medicalCondition);
             }
 

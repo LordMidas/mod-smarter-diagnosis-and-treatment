@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using HarmonyLib;
 using GLib;
 using Lopital;
 
@@ -16,6 +15,16 @@ namespace ModSmarterDiagnosisAndTreatment
     public static class WrongDiagnosis
     {
         private const string NotificationId = "NOTIF_WRONG_DIAGNOSIS";
+
+        /// <summary>
+        /// Called first in the SelectNextProcedure (outpatients) and SelectNextStep (hospitalized) Prefixes, before
+        /// vanilla diagnoses again or schedules an exam.
+        /// </summary>
+        public static void CorrectIfNeeded(BehaviorPatient patient)
+        {
+            if (ModConfig.WrongDiagnosis.AutoCorrect && NeedsCorrection(patient))
+                TryCorrect(patient);
+        }
 
         public static bool NeedsCorrection(BehaviorPatient patient)
         {
@@ -151,38 +160,6 @@ namespace ModSmarterDiagnosisAndTreatment
             }
 
             return dropped;
-        }
-    }
-
-    // Outpatients: before vanilla (and the mod's other Prefix) decides the next exam or treatment.
-    [HarmonyPatch(typeof(BehaviorPatient), "SelectNextProcedure")]
-    [HarmonyPriority(Priority.First)]
-    public static class BehaviorPatient_SelectNextProcedure_WrongDiagnosis
-    {
-        private static bool Prepare() => ModConfig.Patch(ModConfig.WrongDiagnosis.AutoCorrect, nameof(BehaviorPatient_SelectNextProcedure_WrongDiagnosis));
-
-        public static void Prefix(BehaviorPatient __instance)
-        {
-            if (WrongDiagnosis.NeedsCorrection(__instance) &&
-                !__instance.m_entity.GetComponent<HospitalizationComponent>().IsHospitalized())
-            {
-                WrongDiagnosis.TryCorrect(__instance);
-            }
-        }
-    }
-
-    // Hospitalized patients: before vanilla's next step, which then diagnoses again or schedules an exam.
-    [HarmonyPatch(typeof(HospitalizationComponent), "SelectNextStep")]
-    [HarmonyPriority(Priority.First)]
-    public static class HospitalizationComponent_SelectNextStep_WrongDiagnosis
-    {
-        private static bool Prepare() => ModConfig.Patch(ModConfig.WrongDiagnosis.AutoCorrect, nameof(HospitalizationComponent_SelectNextStep_WrongDiagnosis));
-
-        public static void Prefix(HospitalizationComponent __instance)
-        {
-            BehaviorPatient patient = __instance.m_entity.GetComponent<BehaviorPatient>();
-            if (WrongDiagnosis.NeedsCorrection(patient))
-                WrongDiagnosis.TryCorrect(patient);
         }
     }
 }

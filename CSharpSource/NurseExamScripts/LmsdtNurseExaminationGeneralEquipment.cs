@@ -139,6 +139,7 @@ public class LmsdtNurseExaminationGeneralEquipment : ProcedureScript
 		{
 			UpdateStateProcedureIdleAnimation();
 		}
+		// Unreachable for nurses (no consultation branch); kept to match vanilla for re-diffing.
 		else if (m_stateData.m_state == "PROCEDURE_CONSULTATION")
 		{
 			UpdateStateConsultation();

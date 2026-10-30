@@ -1,5 +1,5 @@
 <Database>
-    <GameDBRoomType ID="ROOM_TYPE_INPATIENT_WARD"><!-- exept Emergency, ICU, Radiology -->
+    <GameDBRoomType ID="ROOM_TYPE_INPATIENT_WARD"><!-- except Emergency, ICU, Radiology -->
         <AbbreviationLocID>ROOM_TYPE_INPATIENT_WARD_DESCRIPTION</AbbreviationLocID>
         <TextureID>370</TextureID>
         <IconIndex>836</IconIndex>

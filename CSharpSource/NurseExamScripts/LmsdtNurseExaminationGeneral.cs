@@ -115,6 +115,7 @@ public class LmsdtNurseExaminationGeneral : ProcedureScript
 		{
 			UpdateStateProcedureIdleAnimation();
 		}
+		// Unreachable for nurses (no consultation branch); kept to match vanilla for re-diffing.
 		else if (m_stateData.m_state == "PROCEDURE_CONSULTATION")
 		{
 			UpdateStateConsultation();
@@ -579,7 +580,6 @@ public class LmsdtNurseExaminationGeneral : ProcedureScript
 
 	private void CheckEndStep()
 	{
-		Entity entity = m_stateData.m_procedureScene.Nurse.GetEntity();
 		// Vanilla: ambiguous-diagnosis PROCEDURE_CONSULTATION branch (doctors only). Nurses never consult.
 		SwitchState("PROCEDURE_FINISHED");
 	}
