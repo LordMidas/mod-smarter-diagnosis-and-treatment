@@ -59,9 +59,9 @@ namespace ModSmarterDiagnosisAndTreatment
 
         // Interview-style exams only reveal complained-about symptoms; a symptom is complained about
         // for certain only when the patient complains about it and it carries no shame.
-        private static bool CanInterviewReveal(GameDBSymptom symptom) => symptom.PatientComplains && symptom.ShameLevel == 0;
+        internal static bool CanInterviewReveal(GameDBSymptom symptom) => symptom.PatientComplains && symptom.ShameLevel == 0;
 
-        private static bool HasTestedForSymptom(HashSet<GameDBExamination> finishedExams, GameDBSymptom symptom)
+        internal static bool HasTestedForSymptom(HashSet<GameDBExamination> finishedExams, GameDBSymptom symptom)
         {
             if (symptom.Examinations == null)
                 return false;
@@ -161,38 +161,21 @@ namespace ModSmarterDiagnosisAndTreatment
                     SymptomState state = GetSymptomState(finishedExams, medicalCondition, symptom);
                     float probability = Mathf.Clamp01(symptomRule.ProbabilityPercent * 0.01f);
 
-                    if (state == SymptomState.Present)
+                    if (state == SymptomState.Unknown)
+                        continue;
+
+                    bool present = state == SymptomState.Present;
+                    if (present)
                     {
                         hasVisibleSymptom = true;
-                        if (probability <= 0f)
-                        {
-                            eliminated = true;
-                            break;
-                        }
-
-                        logLikelihood += Math.Log(probability);
-                        if (symptom.IsMainSymptom)
+                        if (symptom.IsMainSymptom && probability > 0f)
                             hasVisibleMainSymptom = true;
                     }
-                    else if (state == SymptomState.Absent)
+
+                    if (!SymptomEvidence.Apply(symptomRule, present, ref logLikelihood))
                     {
-                        if (symptom.IsMainSymptom)
-                        {
-                            eliminated = true;
-                            break;
-                        }
-
-                        // Delayed-onset symptoms (DayOfFirstOccurence > 0) may spawn hidden after the exam ran, so their
-                        // absence is never conclusive. No vanilla/DLC rule uses this today; guards modded data.
-                        bool absenceConclusive = symptomRule.DayOfFirstOccurence == 0;
-                        if (probability >= 1f && absenceConclusive)
-                        {
-                            eliminated = true;
-                            break;
-                        }
-
-                        double absentProbability = absenceConclusive ? probability : Math.Min(probability, ModConfig.Scoring.MaxDelayedAbsentProbability);
-                        logLikelihood += ModConfig.Scoring.NegativeEvidenceWeight * Math.Log(1d - absentProbability);
+                        eliminated = true;
+                        break;
                     }
                 }
 
@@ -257,6 +240,41 @@ namespace ModSmarterDiagnosisAndTreatment
                         .CompareTo(StringTable.GetInstance().GetLocalizedText(second.m_diagnosis.Entry))
                 );
             }
+        }
+    }
+
+    /// <summary>
+    /// The scoring's evidence from one symptom rule of a diagnosis, shared by the scoring above and by
+    /// ExaminationInformation, which predicts what the scoring will conclude after an exam.
+    /// </summary>
+    internal static class SymptomEvidence
+    {
+        // Adds the rule's log-likelihood for a visible (present) or tested-but-absent symptom.
+        // Returns false when the evidence rules the diagnosis out.
+        internal static bool Apply(GameDBSymptomRules symptomRule, bool present, ref double logLikelihood)
+        {
+            float probability = Mathf.Clamp01(symptomRule.ProbabilityPercent * 0.01f);
+            if (present)
+            {
+                if (probability <= 0f)
+                    return false;
+
+                logLikelihood += Math.Log(probability);
+                return true;
+            }
+
+            if (symptomRule.GameDBSymptomRef.Entry.IsMainSymptom)
+                return false;
+
+            // Delayed-onset symptoms (DayOfFirstOccurence > 0) may spawn hidden after the exam ran, so their
+            // absence is never conclusive. No vanilla/DLC rule uses this today; guards modded data.
+            bool absenceConclusive = symptomRule.DayOfFirstOccurence == 0;
+            if (probability >= 1f && absenceConclusive)
+                return false;
+
+            double absentProbability = absenceConclusive ? probability : Math.Min(probability, ModConfig.Scoring.MaxDelayedAbsentProbability);
+            logLikelihood += ModConfig.Scoring.NegativeEvidenceWeight * Math.Log(1d - absentProbability);
+            return true;
         }
     }
 

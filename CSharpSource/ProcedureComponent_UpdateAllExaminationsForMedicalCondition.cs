@@ -38,9 +38,14 @@ namespace ModSmarterDiagnosisAndTreatment
             List<GameDBExamination> examinations = availability.m_keys;
             List<ProcedureSceneAvailability> statuses = availability.m_values;
 
+            // Same usefulness as the NPC choice, with relevance breaking ties (e.g. exams that cannot narrow anything).
             float[] scores = new float[examinations.Count];
+            float[] relevance = new float[examinations.Count];
             for (int index = 0; index < scores.Length; index++)
-                scores[index] = ExaminationRelevance.GetRelevanceScore(examinations[index], medicalCondition);
+            {
+                scores[index] = ExaminationInformation.GetUsefulness(__instance, medicalCondition, examinations[index]);
+                relevance[index] = ExaminationRelevance.GetRelevanceScore(examinations[index], medicalCondition);
+            }
 
             List<int> sortedIndices = new List<int>(examinations.Count);
             for (int index = 0; index < examinations.Count; index++)
@@ -50,6 +55,8 @@ namespace ModSmarterDiagnosisAndTreatment
             sortedIndices.Sort((left, right) =>
             {
                 int scoreComparison = scores[right].CompareTo(scores[left]);
+                if (scoreComparison == 0)
+                    scoreComparison = relevance[right].CompareTo(relevance[left]);
                 return scoreComparison != 0 ? scoreComparison : left.CompareTo(right);
             });
 

@@ -2,7 +2,7 @@
 
 General Project Hospital modding knowledge (paths, build and deploy, conventions, Harmony compatibility registry) is in the shared CLAUDE.md, vanilla engine facts in the `ph-*` skills. This file holds only what is specific to this mod.
 
-Project Hospital mod (Harmony 2, net35, Harmony ID `lordmidas.SmarterDiagnosisAndTreatment`) that makes diagnosis and treatment smarter for NPC doctors and the player UI: log-likelihood diagnosis scoring, a relevance-filtered exam list and weighted NPC exam choice, UI highlights and tooltips, collapse-risk treatment, fast track, treatment and exam bundling, ICU step-down, nurse bedside exams for hospitalized patients, plus some vanilla fixes.
+Project Hospital mod (Harmony 2, net35, Harmony ID `lordmidas.SmarterDiagnosisAndTreatment`) that makes diagnosis and treatment smarter for NPC doctors and the player UI: log-likelihood diagnosis scoring, a relevance-filtered exam list and information-gain NPC exam choice, UI highlights and tooltips, collapse-risk treatment, fast track, treatment and exam bundling, ICU step-down, nurse bedside exams for hospitalized patients, plus some vanilla fixes.
 
 ## Build
 - `dotnet build CSharpSource/ModSmarterDiagnosisAndTreatment.csproj` writes the DLL to this folder's root; deploy with Ctrl+Shift+B (`build and deploy`). `.deployignore` also excludes `/CSharpSource/`, `/tools/`, `docs/` and the dev files.
@@ -26,7 +26,8 @@ Project Hospital mod (Harmony 2, net35, Harmony ID `lordmidas.SmarterDiagnosisAn
 ## Core helpers
 - `ModDb`: cached DB entries.
 - `ExaminationEquivalence`: lab sampling ↔ testing exams.
-- `ExaminationRelevance`: the single definition of "exam X is relevant to diagnosis Y" = it reveals a not-yet-visible symptom of Y.
+- `ExaminationRelevance`: the single definition of "exam X is relevant to diagnosis Y" = it reveals a not-yet-visible symptom of Y. Drives the list filter, highlights and tooltips.
+- `ExaminationInformation`: "how useful is exam X" for the NPC choice and the list sort = expected information gain as a share of the candidates' entropy, rescoring outcomes with `SymptomEvidence` (the scoring's per-rule update in `MedicalCondition.cs`; change the scoring there so both stay in step). Cached per `MedicalCondition`.
 - `PatientUi` / `PatientPanelContext`: shared UI helpers and the scoped current patient. `HighlightColorSet`: tint/overlay with restore.
 - `CriticalTreatments`: "critical" = a symptom with collapse risk (`CollapseProcedureRef`, or a `CollapseSymptomRef` chain leading to one), memoized; not `Hazard == High`. Also `MoveCriticalAhead` (stable reorder) and `IsAvailable` / `CanStartInClinic`, shared with the threshold patch.
 - `TreatmentThreshold`: per-department threshold, saved in `InsuranceManager.m_state.m_successfulEventsOfType` (keys `LMSDT_TREATMENT_THRESHOLD:<DPT_ID>`). A missing key means "never set" and follows the config `TreatmentThreshold/DefaultLevel`, so every UI choice is stored, with DiagnosisRelevant as -1.

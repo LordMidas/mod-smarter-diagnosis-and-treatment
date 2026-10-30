@@ -170,6 +170,8 @@ namespace ModSmarterDiagnosisAndTreatment
             "Extra preference for the Differential Diagnosis exam, scaled by the doctor's advanced diagnosis skill. 0.25 makes a top specialist 25% more likely to pick it.");
         private static readonly Setting PriorityMultiplierStrength = Add("NpcExamChoice", "PriorityMultiplierStrength", 1f, 0f, 5f,
             "How strongly an exam's priority value steers NPC doctors towards it. 0 ignores priority, higher values make high-priority exams much more likely.");
+        private static readonly Setting NpcExamsInformationGain = Add("NpcExamChoice", "InformationGain", true,
+            "NPC doctors favor exams by how much their possible results would narrow down the possible diagnoses, and the available examinations list is sorted the same way. An exam whose symptoms are about as likely under every candidate counts for little. When off, an exam counts by the summed likelihood of the diagnoses it can reveal a symptom of.");
         private static readonly Setting DeferLowPriorityExamsInEr = Add("NpcExamChoice", "DeferLowPriorityExamsInEr", true,
             "In the Emergency department, vanilla sends a patient to observation as soon as the doctor picks an exam with priority 30 or lower. With this on, NPC doctors skip those exams while a higher-priority useful exam is available, so patients are not sent to observation too early.");
 
@@ -297,6 +299,7 @@ namespace ModSmarterDiagnosisAndTreatment
             public static float DifferentialDiagnosisSpecialistBonus => ModConfig.DifferentialDiagnosisSpecialistBonus.FloatValue;
             public static float PriorityMultiplierStrength => ModConfig.PriorityMultiplierStrength.FloatValue;
             public static bool DeferLowPriorityExamsInEr => ModConfig.DeferLowPriorityExamsInEr.BoolValue;
+            public static bool InformationGain => NpcExamsInformationGain.BoolValue;
         }
 
         public static class Critical

@@ -48,6 +48,11 @@ namespace ModSmarterDiagnosisAndTreatment
             bool hasHigherPriorityCandidate = false;
             float highestPriority = 1f;
 
+            // With information gain, a relevant exam scores 0 when no result could change the candidates. If no exam
+            // can, relevance decides, so the doctor still examines instead of falling back to vanilla's pick.
+            bool useInformation = ModConfig.NpcExams.InformationGain &&
+                                  HasInformativeExam(__instance, medicalCondition, availability);
+
             foreach (GameDBExamination examination in availability.m_keys)
             {
                 if (!IsSelectable(examination, availability[examination], __instance.m_state.m_procedureQueue))
@@ -55,7 +60,9 @@ namespace ModSmarterDiagnosisAndTreatment
                     continue;
                 }
 
-                float score = ExaminationRelevance.GetRelevanceScore(examination, medicalCondition);
+                float score = useInformation
+                    ? ExaminationInformation.GetUsefulness(__instance, medicalCondition, examination)
+                    : ExaminationRelevance.GetRelevanceScore(examination, medicalCondition);
                 if (score <= 0f)
                     continue;
 
@@ -127,6 +134,23 @@ namespace ModSmarterDiagnosisAndTreatment
             }
 
             __result = candidates[candidates.Count - 1];
+            return false;
+        }
+
+        private static bool HasInformativeExam(
+            ProcedureComponent procedureComponent,
+            MedicalCondition medicalCondition,
+            FakeMap<GameDBExamination, ProcedureSceneAvailability> availability)
+        {
+            foreach (GameDBExamination examination in availability.m_keys)
+            {
+                if (IsSelectable(examination, availability[examination], procedureComponent.m_state.m_procedureQueue) &&
+                    ExaminationInformation.GetUsefulness(procedureComponent, medicalCondition, examination) > 0f)
+                {
+                    return true;
+                }
+            }
+
             return false;
         }
 

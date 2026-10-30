@@ -16,8 +16,10 @@ Every Harmony patch in this mod, grouped by feature: the vanilla method, the mod
 | Vanilla method | Mod class | What the mod does |
 |---|---|---|
 | `ProcedureComponent.GetAllExaminationsForMedicalCondition` | `ProcedureComponent_GetAllExaminationsForMedicalCondition` | Keeps only exams that reveal a hidden symptom of a possible diagnosis (`ExaminationRelevance`), plus interview, Differential Diagnosis and surgery complications. Clears stale availability during UpdateAll |
-| `ProcedureComponent.UpdateAllExaminationsForMedicalCondition` | `ProcedureComponent_UpdateAllExaminationsForMedicalCondition` | Sorts the availability map by relevance. Its Prefix/Finalizer set `UpdatingComponent` for the filter above |
-| `ProcedureComponent.SelectExaminationForMedicalCondition` | `ProcedureComponent_SelectExaminationForMedicalCondition` | NPC weighted exam choice (relevance, doctor skill, exam Priority); defers low-priority exams in the ER |
+| `ProcedureComponent.UpdateAllExaminationsForMedicalCondition` | `ProcedureComponent_UpdateAllExaminationsForMedicalCondition` | Sorts the availability map by `ExaminationInformation.GetUsefulness`, relevance breaking ties. Its Prefix/Finalizer set `UpdatingComponent` for the filter above |
+| `ProcedureComponent.SelectExaminationForMedicalCondition` | `ProcedureComponent_SelectExaminationForMedicalCondition` | NPC weighted exam choice (usefulness, doctor skill, exam Priority); defers low-priority exams in the ER. Usefulness is `ExaminationInformation.GetUsefulness`, or relevance when no selectable exam scores above 0 |
+
+**Usefulness** (`ExaminationInformation`): the expected information gain over the possible diagnoses as a share (0-100) of their current entropy. Outcomes (found/absent of every untested hidden symptom of a candidate the exam reveals, at most the 8 most informative) are weighed with the raw rule probabilities; each outcome's candidates are rescored with `SymptomEvidence`, the scoring's own per-rule update, and a visible main symptom counts as settled. Differential Diagnosis, a settled diagnosis (fewer than 2 candidates or no entropy) and `InformationGain` off use the relevance score. Cached per `MedicalCondition` until the finished exams, visible symptoms or candidates change.
 
 ## UI highlights and tooltips (`HighlightPatches.cs`, `Tooltip*.cs`)
 
@@ -134,6 +136,7 @@ Settings in `ModSmarterDiagnosisAndTreatment.Config.xml` (registry in `ModConfig
 | `ExaminationList/FilterEnabled` | Prepare: `ProcedureComponent_GetAllExaminationsForMedicalCondition` |
 | `ExaminationList/SortEnabled` | Early return in the `UpdateAll...` Postfix only. Its Prefix/Finalizer always run because they set `UpdatingComponent` for the filter |
 | `NpcExamChoice/Enabled` | Prepare: `ProcedureComponent_SelectExaminationForMedicalCondition`. `DeferLowPriorityExamsInEr` gates its ER block |
+| `NpcExamChoice/InformationGain` | Read by `ExaminationInformation.GetUsefulness` (NPC choice and list sort): off = relevance score |
 | `CriticalTreatment/ClinicEnabled` | Early return in `BehaviorPatient_SelectNextProcedure.Prefix` after the lab-room fix (the class is always patched) |
 | `CriticalTreatment/HospitalEnabled` | Return in `HospitalizationComponent_TryToStartScheduledTreatment.Prefix` right after `GroupHospitalQueue`, so bundling still runs |
 | `CriticalTreatment/InSurgeryEnabled` | Prepare: `HospitalizationComponent_UpdateStateBeingTreated` |

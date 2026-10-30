@@ -43,6 +43,8 @@
     <DifferentialDiagnosisSpecialistBonus>0.25</DifferentialDiagnosisSpecialistBonus>
     <!-- How strongly an exam's priority value steers NPC doctors towards it. 0 ignores priority, higher values make high-priority exams much more likely. Range: 0-5. Default: 1. -->
     <PriorityMultiplierStrength>1</PriorityMultiplierStrength>
+    <!-- NPC doctors favor exams by how much their possible results would narrow down the possible diagnoses, and the available examinations list is sorted the same way. An exam whose symptoms are about as likely under every candidate counts for little. When off, an exam counts by the summed likelihood of the diagnoses it can reveal a symptom of. Default: true. -->
+    <InformationGain>true</InformationGain>
     <!-- In the Emergency department, vanilla sends a patient to observation as soon as the doctor picks an exam with priority 30 or lower. With this on, NPC doctors skip those exams while a higher-priority useful exam is available, so patients are not sent to observation too early. Default: true. -->
     <DeferLowPriorityExamsInEr>true</DeferLowPriorityExamsInEr>
   </NpcExamChoice>
