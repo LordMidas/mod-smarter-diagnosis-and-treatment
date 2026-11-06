@@ -2,7 +2,7 @@
 
 General Project Hospital modding knowledge (paths, build and deploy, conventions, Harmony compatibility registry) is in the shared CLAUDE.md, vanilla engine facts in the `ph-*` skills. This file holds only what is specific to this mod.
 
-Last review: 528c5ed
+Last review: f6bf94c
 
 Project Hospital mod (Harmony 2, net35, Harmony ID `lordmidas.SmarterDiagnosisAndTreatment`) that makes diagnosis and treatment smarter for NPC doctors and the player UI: log-likelihood diagnosis scoring, a relevance-filtered exam list and information-gain NPC exam choice, wrong-diagnosis correction, UI highlights and tooltips, collapse-risk treatment, fast track, treatment and exam bundling, ICU step-down, nurse bedside exams for hospitalized patients, plus some vanilla fixes.
 
