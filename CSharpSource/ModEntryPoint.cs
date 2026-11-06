@@ -25,7 +25,7 @@ namespace ModSmarterDiagnosisAndTreatment
             try
             {
                 Debug.Log($"[{GetType().Assembly.GetName().Name}] : Booting up Harmony");
-                var harmony = new Harmony("lordmidas.SmarterDiagnosisAndTreatment");
+                var harmony = new Harmony("com.github.lordmidas.mod-smarter-diagnosis-and-treatment");
                 harmony.PatchAll(Assembly.GetExecutingAssembly());
                 var methods = harmony.GetPatchedMethods();
                 foreach (var m in methods)
