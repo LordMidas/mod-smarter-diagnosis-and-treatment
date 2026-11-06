@@ -20,6 +20,7 @@ namespace ModSmarterDiagnosisAndTreatment
 
             // Must run before PatchAll: the patch classes read their toggles in Prepare().
             ModConfig.Load(dir);
+            WardPrefabs.ModDirectory = dir;
 
             try
             {
