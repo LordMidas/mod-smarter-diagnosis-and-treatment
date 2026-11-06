@@ -17,8 +17,12 @@ namespace ModSmarterDiagnosisAndTreatment
 
         private static bool Prepare() => ModConfig.Patch(AutomaticStepDown || ModConfig.WrongDiagnosis.AutoCorrect, nameof(HospitalizationComponent_SelectNextStep));
 
-        public static bool Prefix(HospitalizationComponent __instance, ref bool __result)
+        public static bool Prefix(HospitalizationComponent __instance, ref bool __result, bool __runOriginal)
         {
+            // Another mod's Prefix already took this step (Hospital Patient Life sends patients to urgent needs).
+            if (!__runOriginal)
+                return false;
+
             Entity entity = __instance.m_entity;
             BehaviorPatient patient = entity.GetComponent<BehaviorPatient>();
             WrongDiagnosis.CorrectIfNeeded(patient);

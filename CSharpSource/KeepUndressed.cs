@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using HarmonyLib;
 using GLib;
 using Lopital;
@@ -22,6 +23,46 @@ namespace ModSmarterDiagnosisAndTreatment
 
         [ThreadStatic] private static bool restoring;
 
+        private static bool hospitalFixesSearched;
+        private static FieldInfo hospitalFixesSetting;
+        private static bool deferLogged;
+
+        /// <summary>
+        /// False while Hospital Fixes' AvoidRedundantExamClothingChanges is on: that mod keeps clinic patients
+        /// undressed between exams itself, and running both would let each block the other's re-dress. The field is
+        /// read on every call, since Hospital Mod Update Checker can change Hospital Fixes settings in game.
+        /// </summary>
+        public static bool Active
+        {
+            get
+            {
+                if (!hospitalFixesSearched)
+                {
+                    hospitalFixesSearched = true;
+                    foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        Type type = assembly.GetType("HospitalFixes.FixConfig", false);
+                        if (type == null)
+                            continue;
+
+                        hospitalFixesSetting = type.GetField("AvoidRedundantExamClothingChanges", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                        break;
+                    }
+                }
+
+                if (hospitalFixesSetting == null || !(bool)hospitalFixesSetting.GetValue(null))
+                    return true;
+
+                if (!deferLogged)
+                {
+                    deferLogged = true;
+                    UnityEngine.Debug.Log("[ModSmarterDiagnosisAndTreatment] Keep Undressed defers to Hospital Fixes (AvoidRedundantExamClothingChanges is on)");
+                }
+
+                return false;
+            }
+        }
+
         /// <summary>
         /// The script is an exam of an undressed clinic patient by their own doctor, and the exam needs either full
         /// clothing or exactly the current level. Any change of clothing now would only dress the patient again
@@ -33,7 +74,7 @@ namespace ModSmarterDiagnosisAndTreatment
             GameDBExamination examination;
             BehaviorPatient patient;
             DressLevel current;
-            if (!IsUndressedForOwnDoctor(script, patientEntity, out examination, out patient, out current))
+            if (!Active || !IsUndressedForOwnDoctor(script, patientEntity, out examination, out patient, out current))
                 return false;
 
             DressLevel required = examination.Procedure.DressLevel;
@@ -69,6 +110,9 @@ namespace ModSmarterDiagnosisAndTreatment
         /// </summary>
         public static void OnPatientWalks(Entity patientEntity)
         {
+            if (!Active)
+                return;
+
             ProcedureComponent component = patientEntity.GetComponent<ProcedureComponent>();
             if (component == null || component.m_state.m_currentProcedureScript == null)
                 return;
@@ -115,6 +159,9 @@ namespace ModSmarterDiagnosisAndTreatment
         /// <summary>Dresses a clinic patient back instantly if an exam left them undressed.</summary>
         public static void Restore(Entity patientEntity)
         {
+            if (!Active)
+                return;
+
             BehaviorPatient patient = patientEntity.GetComponent<BehaviorPatient>();
             if (patient == null || patientEntity.GetComponent<HospitalizationComponent>().IsHospitalized())
                 return;
@@ -128,6 +175,9 @@ namespace ModSmarterDiagnosisAndTreatment
         /// </summary>
         public static void OnHospitalizedFromDoctor(Entity patientEntity)
         {
+            if (!Active)
+                return;
+
             BehaviorPatient patient = patientEntity.GetComponent<BehaviorPatient>();
             if (patient != null)
                 Dress(patientEntity, patient);
