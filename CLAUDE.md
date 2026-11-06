@@ -16,6 +16,7 @@ Project Hospital mod (Harmony 2, net35, Harmony ID `lordmidas.SmarterDiagnosisAn
 - **Full overrides** (re-diff against vanilla after game updates):
   - `Database/ModExaminations.xml`: `EXM_EVALUATION` (Priority 45) and `EXM_DIFFERENTIAL_DIAGNOSIS` (Priority 31, just above the observation threshold of 30), vs `Database/Procedures/Examinations.xml`.
   - `Database/ModRoomTypes.xml`: `ROOM_TYPE_INPATIENT_WARD` and `ROOM_TYPE_HIGH_PRIORITY_INPATIENT_WARD` (exam tags plus the equipment those exams need), so basic exams happen in the ward instead of the patient going to the diagnostic unit; vs `Database/RoomTypes.xml`.
+- `Prefabs/lmsdt_*.xml`: replacement layouts of the built-in ward prefabs, with the equipment the ward room types require (`WardPrefabs.cs`). The base-game ones may only use base-game objects (no DLC `_X` variants); the `hdu_trm` ones are used only with Traumatology. Save them in the vanilla prefab's orientation and size (a mismatch keeps vanilla). Re-check against the vanilla prefabs after game updates.
 - `CSharpSource/NurseExamScripts/Lmsdt*.cs`: ports of `ProcedureScriptExaminationGeneral` / `GeneralEquipment` / `UrineAnalysis` (re-diff after game updates).
 - `tools/ConfigStubs.cs`: stubs for the config regenerator (not compiled into the mod).
 
@@ -38,6 +39,7 @@ Mechanics are in the patch map; this is what each helper is for and what it stor
 - `CriticalTreatments`: "critical" = a symptom with collapse risk (`CollapseProcedureRef`, or a `CollapseSymptomRef` chain to one), memoized; not `Hazard == High`. Shared with the threshold patch.
 - `TreatmentThreshold`: per-department threshold. **Saved** in `InsuranceManager.m_state.m_successfulEventsOfType` (keys `LMSDT_TREATMENT_THRESHOLD:<DPT_ID>`, DiagnosisRelevant = -1); a missing key follows the config `TreatmentThreshold/DefaultLevel`.
 - `IcuStepDown`: the ICU step-down criteria and transfer, shared by the AI and patient card patches. Its cleared set is memory-only (lost on load until the next ICU check-up).
+- `WardPrefabs`: swaps ward layouts in `PrefabManager.m_devPrefabs` and adjusts prefab costs; memory-only.
 - Stateless (derive everything from saved vanilla state): `WrongDiagnosis`, `FastTrack`, `TreatmentBundling`, `ExamBundling`, `KeepUndressed`, `NurseExams`.
 
 ## Pitfalls
@@ -45,3 +47,5 @@ Mechanics are in the patch map; this is what each helper is for and what it stor
 - `HospitalizationComponent_TryToStartScheduledTreatment` is shared by treatment bundling (`GroupHospitalQueue`, always first) and critical treatment; keep that order when changing either feature.
 - Code that reads an exam script's performer must not assume `m_procedureScene.Doctor` (null in nurse scenes); `ExamBundling.GetPerformer` handles both.
 - `BehaviorPatient_SelectNextProcedure` (wrong diagnosis, lab-room fix, critical treatment) and `HospitalizationComponent_SelectNextStep` (wrong diagnosis, ICU step-down) each hold several features. A new feature on a method this mod already patches goes into the existing class, with its toggle checked inside.
+- `KeepUndressed` defers to Hospital Fixes' `AvoidRedundantExamClothingChanges` (`KeepUndressed.Active`). New clothing logic must check `Active` too.
+- Prefixes on methods another mod skips with its own Prefix must check `__runOriginal` before acting (see `HospitalizationComponent_SelectNextStep`).
