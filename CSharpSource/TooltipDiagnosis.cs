@@ -71,12 +71,15 @@ namespace ModSmarterDiagnosisAndTreatment
 
             var relevantExaminations = new List<GameDBExamination>();
             var relevantExaminationSet = new HashSet<GameDBExamination>();
+            bool interviewNeeded = false;
             foreach (GameDBSymptomRules symptomRule in diagnosis.Symptoms)
             {
                 GameDBSymptom symptom = symptomRule?.GameDBSymptomRef?.Entry;
                 if (symptom == null || symptom.Examinations == null)
                     continue;
 
+                bool revealedByInterview = false;
+                bool revealedByOther = false;
                 foreach (DatabaseEntryRef<GameDBExamination> examinationRef in symptom.Examinations)
                 {
                     // Lab tests are listed by the sampling examination the player orders.
@@ -84,10 +87,22 @@ namespace ModSmarterDiagnosisAndTreatment
                     if (relevantExamination == null)
                         continue;
 
+                    if (relevantExamination == ModDb.Interview)
+                        revealedByInterview = true;
+                    else
+                        revealedByOther = true;
+
                     if (relevantExaminationSet.Add(relevantExamination))
                         relevantExaminations.Add(relevantExamination);
                 }
+
+                if (revealedByInterview && !revealedByOther)
+                    interviewNeeded = true;
             }
+
+            // The interview is listed only when some symptom can be revealed by nothing else.
+            if (!interviewNeeded)
+                relevantExaminations.Remove(ModDb.Interview);
 
             if (relevantExaminations.Count == 0)
                 return;

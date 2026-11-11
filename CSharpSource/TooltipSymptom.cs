@@ -28,13 +28,14 @@ namespace ModSmarterDiagnosisAndTreatment
         }
 
         /// <summary>
-        /// Shows all examinations that can reveal the symptom and marks examinations already performed.
+        /// Shows all examinations that can reveal the symptom (the interview only when nothing else can)
+        /// and marks examinations already performed.
         /// </summary>
         public static void Postfix(TooltipSymptom __instance, GameDBSymptom symptom)
         {
             RestoreVanillaLayout(__instance);
 
-            if (symptom == null || symptom.Examinations == null || symptom.Examinations.Length <= 1)
+            if (symptom == null || symptom.Examinations == null || symptom.Examinations.Length == 0)
                 return;
 
             var finishedExamSet = new HashSet<GameDBExamination>();
@@ -53,20 +54,27 @@ namespace ModSmarterDiagnosisAndTreatment
                 }
             }
 
-            var examsBuilder = new StringBuilder();
+            // Lab tests are listed by the testing examination that reveals the symptom.
+            var listedExams = new List<GameDBExamination>();
             var listedExamSet = new HashSet<GameDBExamination>();
-            int examinationCount = 0;
-            GameDBExamination performedExamination = null;
             foreach (var exam in symptom.Examinations)
             {
-                // Lab tests are listed by the testing examination that reveals the symptom.
                 GameDBExamination examination = ExaminationEquivalence.ToTesting(exam.Entry);
-                if (examination == null)
-                    continue;
+                if (examination != null && listedExamSet.Add(examination))
+                    listedExams.Add(examination);
+            }
 
-                if (!listedExamSet.Add(examination))
-                    continue;
+            // The interview is implied when another examination can reveal the symptom.
+            if (listedExams.Count > 1)
+                listedExams.Remove(ModDb.Interview);
+            if (listedExams.Count == 0)
+                return;
 
+            var examsBuilder = new StringBuilder();
+            int examinationCount = 0;
+            GameDBExamination performedExamination = null;
+            foreach (GameDBExamination examination in listedExams)
+            {
                 bool wasPerformed = finishedExamSet.Contains(examination);
 
                 if (examinationCount > 0)
@@ -76,16 +84,17 @@ namespace ModSmarterDiagnosisAndTreatment
                     if (performedExamination == null)
                         performedExamination = examination;
 
-                examsBuilder.Append(wasPerformed ? COLOR_DONE_POSITIVE + "✓ " : "- ");
+                // A single examination needs no list bullet, like the vanilla tooltip.
+                if (wasPerformed)
+                    examsBuilder.Append(COLOR_DONE_POSITIVE + "✓ ");
+                else if (listedExams.Count > 1)
+                    examsBuilder.Append("- ");
                 examsBuilder.Append(StringTable.GetInstance().GetLocalizedText(examination));
                 if (wasPerformed)
                     examsBuilder.Append(COLOR_END);
 
                 examinationCount++;
             }
-
-            if (examinationCount <= 1)
-                return;
 
             Text examinationText = __instance.m_textExamination.GetComponent<Text>();
             RectTransform examinationRect = __instance.m_textExamination.GetComponent<RectTransform>();
