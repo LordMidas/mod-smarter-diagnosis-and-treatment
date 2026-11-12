@@ -337,8 +337,12 @@ namespace ModSmarterDiagnosisAndTreatment
             }
         }
 
-        public static void Prefix(WalkComponent __instance)
+        public static void Prefix(WalkComponent __instance, bool __runOriginal)
         {
+            // A walk an earlier Prefix held back (Hospital Traffic Control's access-zone exit) does not start yet.
+            if (!__runOriginal)
+                return;
+
             Entity entity = __instance.m_entity;
             if (entity != null && entity.GetComponent<BehaviorPatient>() != null)
                 KeepUndressed.OnPatientWalks(entity);

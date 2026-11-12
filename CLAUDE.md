@@ -48,4 +48,4 @@ Mechanics are in the patch map; this is what each helper is for and what it stor
 - Code that reads an exam script's performer must not assume `m_procedureScene.Doctor` (null in nurse scenes); `ExamBundling.GetPerformer` handles both.
 - `BehaviorPatient_SelectNextProcedure` (wrong diagnosis, lab-room fix, critical treatment) and `HospitalizationComponent_SelectNextStep` (wrong diagnosis, ICU step-down) each hold several features. A new feature on a method this mod already patches goes into the existing class, with its toggle checked inside.
 - `KeepUndressed` defers to Hospital Fixes' `AvoidRedundantExamClothingChanges` (`KeepUndressed.Active`). New clothing logic must check `Active` too.
-- Prefixes on methods another mod skips with its own Prefix must check `__runOriginal` before acting (see `HospitalizationComponent_SelectNextStep`).
+- Prefixes on methods another mod skips with its own Prefix must check `__runOriginal` before acting (see `HospitalizationComponent_SelectNextStep`, `ProcedureComponent_ReserveExamination`, `WalkComponent_Walk`).

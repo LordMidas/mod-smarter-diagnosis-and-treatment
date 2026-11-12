@@ -128,8 +128,13 @@ namespace ModSmarterDiagnosisAndTreatment
         private static bool Prepare() => ModConfig.Patch(ModConfig.NurseExams.Enabled, nameof(ProcedureComponent_ReserveExamination));
 
         public static bool Prefix(ProcedureComponent __instance, GameDBExamination examination, Entity patient,
-            Department department, Room room, AccessRights accessRights, ref ProcedureSceneAvailability __result)
+            Department department, Room room, AccessRights accessRights, ref ProcedureSceneAvailability __result,
+            bool __runOriginal)
         {
+            // An earlier Prefix already decided (Hospital Flow Optimizer's trauma-center wait): keep its result.
+            if (!__runOriginal)
+                return false;
+
             if (!NurseExams.Applies(patient, examination))
                 return true;
 
