@@ -39,7 +39,7 @@ namespace ModSmarterDiagnosisAndTreatment
         }
 
         // Returns false when the correction has to wait, i.e. a reserved treatment that would be dropped cannot be
-        // cancelled while the hospitalized patient is being moved.
+        // canceled while the hospitalized patient is being moved.
         public static bool TryCorrect(BehaviorPatient patient)
         {
             Entity entity = patient.m_entity;

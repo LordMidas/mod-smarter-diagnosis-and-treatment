@@ -89,7 +89,7 @@ namespace ModSmarterDiagnosisAndTreatment
             return false;
         }
 
-        /// <summary>A surgery the patient needs quickly: prioritised by the player, or treating an urgent symptom or the diagnosis behind one.</summary>
+        /// <summary>A surgery the patient needs quickly: prioritized by the player, or treating an urgent symptom or the diagnosis behind one.</summary>
         public static bool IsUrgentSurgery(BehaviorPatient patient, GameDBTreatment treatment)
         {
             if (treatment.TreatmentType != TreatmentType.SURGERY)

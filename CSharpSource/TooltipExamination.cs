@@ -23,7 +23,7 @@ namespace ModSmarterDiagnosisAndTreatment
     {
         private static bool Prepare() => ModConfig.Patch(ModConfig.Tooltips.ExaminationRelevantDiagnoses, nameof(TooltipExamination_UpdateData));
 
-        // Colour used for the section header and list items – a soft blue that
+        // Color used for the section header and list items – a soft blue that
         // contrasts with the vanilla orange/red used for warnings.
         private const string DIAGNOSES_COLOR_TAG = "<color=#aaddff>";
         private const string COLOR_END = "</color>";

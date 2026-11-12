@@ -98,7 +98,7 @@ namespace ModSmarterDiagnosisAndTreatment
         // Vanilla scores each diagnosis as the average over its symptom rules of P (symptom visible) or 100 - P
         // (not visible), so a symptom nobody has tested for counts as evidence against it. Here only tested
         // symptoms count: a visible one adds log(P), a tested-but-absent one adds a down-weighted log(1 - P), and
-        // untested ones add nothing. Diagnoses are then normalised relative to the best one. A visible main
+        // untested ones add nothing. Diagnoses are then normalized relative to the best one. A visible main
         // symptom still short-circuits to a single 100% diagnosis, as in vanilla.
         private static void GetPossibleDiagnoses_Enhanced3(Entity patient, MedicalCondition medicalCondition, List<PossibleDiagnosis> possibleDiagnoses, bool sortResults, GameDBGender patientGender)
         {
@@ -294,7 +294,7 @@ namespace ModSmarterDiagnosisAndTreatment
 
     [HarmonyPatch(typeof(MedicalCondition), nameof(MedicalCondition.IsClear), new Type[] { typeof(float), typeof(int) })]
     // Vanilla compares the raw m_probability of the top diagnosis with the threshold. Our raw value is relative to
-    // the best diagnosis (always about 100 for the top one), so compare the normalised m_probabilityWeighted.
+    // the best diagnosis (always about 100 for the top one), so compare the normalized m_probabilityWeighted.
     public static class MedicalCondition_IsClearWithCertaintyThreshold
     {
         private static bool Prepare() => ModConfig.Patch(ModConfig.Scoring.Enabled, nameof(MedicalCondition_IsClearWithCertaintyThreshold));

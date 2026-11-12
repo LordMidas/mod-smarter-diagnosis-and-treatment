@@ -6,10 +6,10 @@ namespace ModSmarterDiagnosisAndTreatment
 {
     /// <summary>
     /// Vanilla fix (always on). Without a patient seat, the patient stands at the doctor's GetInteractionPosition: the
-    /// first free neighbour of the work chair in the fixed world order NW, NE, SE, SW. A paper holder or printer is an
+    /// first free neighbor of the work chair in the fixed world order NW, NE, SE, SW. A paper holder or printer is an
     /// attachment on the desk, so its use tile counts as free, and in two of the four rotations of an office (chair
     /// facing NW or SW) the patient is sent onto the tile where the doctor stands to write the receipt. Here that tile
-    /// is skipped in favour of the next free neighbour of the chair, with vanilla's other conditions unchanged.
+    /// is skipped in favor of the next free neighbor of the chair, with vanilla's other conditions unchanged.
     /// </summary>
     [HarmonyPatch(typeof(Behavior), nameof(Behavior.GetInteractionPosition))]
     public static class Behavior_GetInteractionPosition

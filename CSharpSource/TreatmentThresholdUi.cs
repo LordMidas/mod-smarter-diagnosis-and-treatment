@@ -566,7 +566,7 @@ namespace ModSmarterDiagnosisAndTreatment
         // Writes the vanilla value back to every adjusted element (taking any value vanilla reset as the new base), so
         // the layout is measured and classified in a pure vanilla state. Vanilla UpdateLayout resets only some of them
         // (window height, statistics and bottom panel positions), and a mix of vanilla and adjusted values misplaces
-        // the row and misclassifies its neighbours.
+        // the row and misclassifies its neighbors.
         private static void RestoreVanilla()
         {
             foreach (KeyValuePair<RectTransform, Adjustment> pair in adjustments)

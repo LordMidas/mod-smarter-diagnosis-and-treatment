@@ -11,13 +11,13 @@ namespace ModSmarterDiagnosisAndTreatment
     /// <summary>
     /// Postfix on TooltipDiagnosis.UpdateData.
     ///
-    /// After vanilla populates the diagnosis tooltip, we append a colour-coded list of
+    /// After vanilla populates the diagnosis tooltip, we append a color-coded list of
     /// examinations that can reveal this diagnosis's symptoms, showing which have
     /// been done on the currently-viewed patient and whether they found anything.
     ///
-    /// Colour key:
+    /// Color key:
     ///   Green  – exam was completed and revealed at least one symptom
-    ///   Grey   – exam was completed but found nothing
+    ///   Gray   – exam was completed but found nothing
     ///   White  – exam has not been performed yet
     /// </summary>
     [HarmonyPatch(typeof(TooltipDiagnosis), nameof(TooltipDiagnosis.UpdateData))]
@@ -27,9 +27,9 @@ namespace ModSmarterDiagnosisAndTreatment
 
         // Green: exam revealed a symptom
         private const string COLOR_DONE_POSITIVE = "<color=#88dd88>";
-        // Grey: exam done, nothing found
+        // Gray: exam done, nothing found
         private const string COLOR_DONE_NEUTRAL  = "<color=#888888>";
-        // Section header colour (muted olive, matches the user's existing choice)
+        // Section header color (muted olive, matches the user's existing choice)
         private const string COLOR_HEADER        = "<color=#aaddff>";
         private const string COLOR_END           = "</color>";    
 
@@ -157,7 +157,7 @@ namespace ModSmarterDiagnosisAndTreatment
                     }
                     else
                     {
-                        // Grey – done but nothing found
+                        // Gray – done but nothing found
                         examsBuilder.Append(COLOR_DONE_NEUTRAL);
                         examsBuilder.Append(" - ");
                         examsBuilder.Append(examName);
