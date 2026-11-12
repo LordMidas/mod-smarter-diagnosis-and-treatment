@@ -68,7 +68,7 @@ Everything can be switched off or tuned in **ModSmarterDiagnosisAndTreatment.Con
 - Can be added to an existing save.
 - Available in 20 languages.
 - Works with all DLCs, any combination of them, or none.
-- Works with Loupito75's Hospital Porters, Hospital Care Level Transfer, Hospital Fixes, Hospital EMS, Hospital Patient Life and Hospital Shift Handover.
+- Works with Loupito75's Hospital Porters, Hospital Care Level Transfer, Hospital Fixes, Hospital EMS, Hospital Patient Life, Hospital Shift Handover, Hospital Flow Optimizer, Hospital Runtime Optimizer, Hospital Traffic Control, Hospital Always Lit, Hospital Radio and Hospital Mod Update Checker.
 - Hospital Fixes has its own way of keeping patients undressed between exams. While its *Avoid redundant examination clothing changes* setting is on, this mod leaves that to it; switch that setting off to use this mod's version instead.
 - Changes the Priority of the Evaluation and Differential Diagnosis exams, and the regular ward and HDU room types (exam tags and required equipment), and replaces the built-in ward prefabs. Other mods that change these may conflict.
 

@@ -4,7 +4,7 @@ using HarmonyLib;
 using UnityEngine;
 
 [assembly: AssemblyTitle("MOD_SMARTER_DIAGNOSIS_AND_TREATMENT")] // ENTER MOD TITLE
-[assembly: AssemblyFileVersion("1.0.0.0")] // MOD VERSION
+[assembly: AssemblyFileVersion("1.0.1.0")] // MOD VERSION
 [assembly: AssemblyVersion("1.2.2.548")] // GAME VERSION
 namespace ModSmarterDiagnosisAndTreatment
 {

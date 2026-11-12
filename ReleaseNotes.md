@@ -2,6 +2,13 @@
 
 Newest version first.
 
+## 1.0.1
+
+### Compatibility
+- Works with Loupito75's Hospital Flow Optimizer, Hospital Runtime Optimizer, Hospital Traffic Control, Hospital Always Lit, Hospital Radio and Hospital Mod Update Checker.
+- Nurse bedside exams no longer override Hospital Flow Optimizer's Trauma Center protection while it waits for busy equipment for an ER observation patient.
+- Kept undressed: a patient is no longer dressed for a walk that Hospital Traffic Control holds back.
+
 ## 1.0.0
 
 First release.
