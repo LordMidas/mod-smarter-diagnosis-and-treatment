@@ -2,6 +2,11 @@
 
 Newest version first.
 
+## 1.0.2
+
+### Fixes
+- Nurse bedside exams no longer reserve a nurse for an exam that needs the patient moved to another room. This could tie up the nurses needed for transfers.
+
 ## 1.0.1
 
 ### Compatibility

@@ -135,7 +135,9 @@ namespace ModSmarterDiagnosisAndTreatment
             if (!__runOriginal)
                 return false;
 
-            if (!NurseExams.Applies(patient, examination))
+            // The nurse exam is bedside only: with no room the exam needs equipment elsewhere, and a reserved station
+            // nurse would wait for a transfer nurse, usually from the same station.
+            if (room == null || !NurseExams.Applies(patient, examination))
                 return true;
 
             ProcedureSceneAvailability availability;
